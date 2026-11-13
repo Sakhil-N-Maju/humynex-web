@@ -42,6 +42,7 @@ next-env.d.ts
 
 # local data
 /prisma/dev.db*
+/prisma/demo.db*
 /storage/
 /public/uploads/
 !.env.example

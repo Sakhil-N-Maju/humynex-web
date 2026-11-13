@@ -12,6 +12,11 @@ const nextConfig: NextConfig = {
       },
     },
   },
+  // UI-only demo deploys (npm run build:demo) build a seeded SQLite file at
+  // build time and ship it read-only with every server function.
+  outputFileTracingIncludes: {
+    "/**": ["./prisma/demo.db"],
+  },
   images: {
     formats: ["image/avif", "image/webp"],
   },
