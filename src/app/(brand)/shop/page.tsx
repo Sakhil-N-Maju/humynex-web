@@ -56,7 +56,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
 
       <DarkBand curve label="Catalogue" className="!pt-10 md:!pt-14">
         <div className="mx-auto max-w-[1400px]">
-          <div className="sticky top-[84px] z-20 -mx-5 bg-[#050816]/85 px-5 py-3 backdrop-blur-md md:-mx-8 md:px-8">
+          <div className="py-3">
             <div className="flex flex-col gap-3 xl:flex-row xl:items-center">
               <nav aria-label="Categories" className="flex snap-x gap-2 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
                 {[{ category: undefined, label: "All", n: total }, ...cats.map((c) => ({ category: c.category, label: c.category, n: c._count }))].map((c) => {
