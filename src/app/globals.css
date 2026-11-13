@@ -1,0 +1,211 @@
+@import "tailwindcss";
+
+/*
+  Humynex design tokens
+  ---------------------
+  Theme: dark only. The brand has always been navy + electric blue; a light
+  mode would lose that identity, so the site is locked to one theme.
+
+  Colour: one accent family (brand blue). #1E90FF is the action colour,
+  #67D4FF its highlight. Green / amber / red are reserved for real status.
+
+  Shape rule (applies everywhere):
+    - filled primary controls and media plates: 10px chamfer on the top-right corner
+    - outlined surfaces, inputs, secondary buttons: 4px radius
+    - pills: only for status chips
+*/
+
+@theme {
+  --color-ink: #050816;
+  --color-ink-2: #0a1024;
+  --color-ink-3: #111a33;
+  --color-ink-4: #1a2647;
+  --color-line: rgb(120 170 255 / 0.12);
+  --color-line-2: rgb(120 170 255 / 0.24);
+
+  --color-fg: #eef3fa;
+  --color-fg-2: #a7b3c5;
+  --color-fg-3: #8290a8;
+
+  --color-volt: #1e90ff;
+  --color-volt-hi: #67d4ff;
+  --color-volt-lo: #0f4f9e;
+  --color-steel: #c9d4e3;
+
+  --color-ok: #3ddc97;
+  --color-warn: #ffb547;
+  --color-bad: #ff6b6b;
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, monospace;
+
+  --radius-sm: 4px;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+
+  --animate-blink: blink 4.2s infinite;
+  @keyframes blink {
+    0%, 92%, 100% { transform: scaleY(1); }
+    95% { transform: scaleY(0.1); }
+  }
+}
+
+/* z-index scale: 0 background machinery, 10 content, 30 bots, 40 header,
+   50 drawers/modals, 60 toasts */
+
+@layer base {
+  html {
+    color-scheme: dark;
+    background: var(--color-ink);
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    background: var(--color-ink);
+    color: var(--color-fg);
+    font-family: var(--font-sans);
+    /* Inter Display throughout: optical size pinned to the display cut */
+    font-variation-settings: "opsz" 32;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+  ::selection {
+    background: var(--color-volt);
+    color: var(--color-ink);
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-volt-hi);
+    outline-offset: 3px;
+  }
+  input, select, textarea, button { font: inherit; }
+  h1, h2, h3, h4 { text-wrap: balance; }
+  p { text-wrap: pretty; }
+}
+
+@layer components {
+  /* Headings: Inter Display SemiBold */
+  .display {
+    font-variation-settings: "opsz" 32;
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    line-height: 1.04;
+  }
+  .display-wide {
+    font-variation-settings: "opsz" 32;
+    font-weight: 600;
+    letter-spacing: -0.035em;
+    line-height: 1;
+  }
+  .label {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-fg-3);
+  }
+
+  .chamfer {
+    --c: 10px;
+    clip-path: polygon(0 0, calc(100% - var(--c)) 0, 100% var(--c), 100% 100%, 0 100%);
+  }
+  .chamfer-lg { --c: 22px; }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+    height: 3rem;
+    padding: 0 1.5rem;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 0.9375rem;
+    transition: background-color 0.25s var(--ease-out-expo), color 0.25s var(--ease-out-expo),
+      border-color 0.25s var(--ease-out-expo), transform 0.15s var(--ease-out-expo);
+  }
+  .btn:active { transform: translateY(1px) scale(0.99); }
+  .btn:disabled { opacity: 0.45; pointer-events: none; }
+  .btn-primary {
+    background: var(--color-volt);
+    color: var(--color-ink);
+  }
+  .btn-primary:hover { background: var(--color-volt-hi); }
+  .btn-ghost {
+    border: 1px solid rgb(255 255 255 / 0.22);
+    color: var(--color-fg);
+    background: rgb(10 16 36 / 0.6);
+  }
+  .btn-ghost:hover { border-color: #fff; }
+  .btn-sm { height: 2.5rem; padding: 0 1rem; font-size: 0.875rem; }
+
+  .field-label {
+    display: block;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--color-fg-2);
+    margin-bottom: 0.4rem;
+  }
+  .input {
+    width: 100%;
+    height: 2.875rem;
+    padding: 0 1rem;
+    border-radius: 14px;
+    background: var(--color-ink-2);
+    border: 1px solid var(--color-line-2);
+    color: var(--color-fg);
+    transition: border-color 0.2s;
+  }
+  textarea.input { height: auto; padding: 0.75rem 0.875rem; line-height: 1.5; }
+  .input::placeholder { color: var(--color-fg-3); }
+  .input:hover { border-color: rgb(120 170 255 / 0.4); }
+  .input:focus { outline: none; border-color: var(--color-volt-hi); box-shadow: 0 0 0 3px rgb(30 144 255 / 0.25); }
+  .input[aria-invalid="true"] { border-color: var(--color-bad); }
+  select.input { appearance: none; background-image: linear-gradient(45deg, transparent 50%, var(--color-fg-2) 50%), linear-gradient(135deg, var(--color-fg-2) 50%, transparent 50%); background-position: calc(100% - 18px) 50%, calc(100% - 13px) 50%; background-size: 5px 5px; background-repeat: no-repeat; padding-right: 2.25rem; }
+
+  .surface {
+    border-radius: var(--radius-sm);
+    background: rgb(10 16 36 / 0.72);
+    border: 1px solid var(--color-line);
+  }
+
+  .link-underline {
+    background-image: linear-gradient(currentColor, currentColor);
+    background-size: 0% 1px;
+    background-position: 0 100%;
+    background-repeat: no-repeat;
+    transition: background-size 0.4s var(--ease-out-expo);
+  }
+  .link-underline:hover { background-size: 100% 1px; }
+
+  /* faint machined grid, used only behind the hero and the print bay */
+  .blueprint {
+    background-image:
+      linear-gradient(rgb(120 170 255 / 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgb(120 170 255 / 0.05) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(ellipse at 60% 40%, black 30%, transparent 75%);
+  }
+}
+
+/* Film grain on a fixed layer only, never on scrolling containers. */
+.grain::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+html.lenis, html.lenis body { height: auto; }
+.lenis.lenis-smooth [data-lenis-prevent] { overscroll-behavior: contain; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

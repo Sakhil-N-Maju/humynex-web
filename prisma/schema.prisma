@@ -1,0 +1,280 @@
+// Humynex Robotics data model.
+// Local dev uses SQLite. For production on Vercel, switch `provider` to "postgresql"
+// and point DATABASE_URL at a hosted Postgres (Neon, Supabase, Vercel Postgres).
+// All money is stored as integer paise (₹1 = 100) to avoid float rounding.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  name         String
+  phone        String?
+  passwordHash String
+  role         String   @default("CUSTOMER") // CUSTOMER | ADMIN
+  points       Int      @default(0)          // spendable balance
+  lifetimePts  Int      @default(0)          // drives reward tier
+  createdAt    DateTime @default(now())
+
+  ledger   PointsEntry[]
+  orders   Order[]
+  bookings RentalBooking[]
+  prints   PrintJob[]
+}
+
+model PointsEntry {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  delta     Int
+  reason    String   // SIGNUP_BONUS | PURCHASE | REDEEM | ADMIN_ADJUST | REFUND
+  note      String?
+  refType   String?  // ORDER | RENTAL | PRINT
+  refId     String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  category    String
+  brand       String?
+  sku         String?
+  price       Int      // paise
+  compareAt   Int?     // paise, shown struck-through when set
+  stock       Int      @default(0)
+  summary     String
+  description String
+  specs       String   @default("[]") // JSON [{label, value}]
+  image       String?
+  featured    Boolean  @default(false)
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  orderItems OrderItem[]
+}
+
+model RentalItem {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  name        String
+  kind        String   // ROBOT | COSTUME | FLEET
+  tagline     String
+  description String
+  dailyRate   Int      // paise
+  deposit     Int      // paise, refundable
+  minDays     Int      @default(1)
+  units       Int      @default(1)
+  includes    String   @default("[]") // JSON string[]
+  goodFor     String   @default("[]") // JSON string[]
+  image       String?
+  featured    Boolean  @default(false)
+  active      Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+
+  bookings RentalBooking[]
+}
+
+model RentalBooking {
+  id          String     @id @default(cuid())
+  number      String     @unique
+  userId      String?
+  user        User?      @relation(fields: [userId], references: [id])
+  itemId      String
+  item        RentalItem @relation(fields: [itemId], references: [id])
+  startDate   DateTime
+  endDate     DateTime   // inclusive last day
+  days        Int
+  quantity    Int        @default(1)
+  name        String
+  email       String
+  phone       String
+  venue       String
+  notes       String?
+  rentTotal   Int
+  deposit     Int
+  discount    Int        @default(0)
+  couponCode  String?
+  total       Int
+  status      String     @default("PENDING_PAYMENT") // PENDING_PAYMENT | CONFIRMED | ACTIVE | RETURNED | CANCELLED
+  createdAt   DateTime   @default(now())
+
+  @@index([itemId, startDate, endDate])
+}
+
+model PrintMaterial {
+  id          String  @id @default(cuid())
+  code        String  @unique // PLA, PETG...
+  name        String
+  description String
+  density     Float   // g/cm3
+  pricePerG   Int     // paise per gram
+  colors      String  @default("[]") // JSON string[]
+  active      Boolean @default(true)
+  sortOrder   Int     @default(0)
+}
+
+model PrintJob {
+  id          String   @id @default(cuid())
+  number      String   @unique
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id])
+  fileName    String
+  filePath    String   // relative to /storage, never public
+  fileSize    Int
+  units       String   @default("mm")
+  volumeCm3   Float
+  sizeX       Float
+  sizeY       Float
+  sizeZ       Float
+  material    String
+  color       String
+  infill      Int      // percent
+  quality     String   // DRAFT | STANDARD | FINE
+  quantity    Int      @default(1)
+  grams       Float
+  hours       Float
+  estimate    Int      // paise
+  breakdown   String   @default("{}")
+  needsReview Boolean  @default(false)
+  name        String
+  email       String
+  phone       String
+  notes       String?
+  status      String   @default("QUOTED") // QUOTED | PENDING_PAYMENT | PAID | PRINTING | READY | SHIPPED | CANCELLED
+  createdAt   DateTime @default(now())
+}
+
+model Order {
+  id             String      @id @default(cuid())
+  number         String      @unique
+  userId         String?
+  user           User?       @relation(fields: [userId], references: [id])
+  name           String
+  email          String
+  phone          String
+  line1          String
+  line2          String?
+  city           String
+  state          String
+  postal         String
+  subtotal       Int
+  discount       Int         @default(0)
+  pointsUsed     Int         @default(0)
+  shipping       Int         @default(0)
+  total          Int
+  couponCode     String?
+  pointsEarned   Int         @default(0)
+  status         String      @default("PENDING_PAYMENT") // PENDING_PAYMENT | PAID | PACKED | SHIPPED | DELIVERED | CANCELLED
+  createdAt      DateTime    @default(now())
+
+  items OrderItem[]
+}
+
+model OrderItem {
+  id        String  @id @default(cuid())
+  orderId   String
+  order     Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  name      String
+  price     Int
+  qty       Int
+}
+
+// One row per payment attempt, for any kind of purchase.
+model Payment {
+  id                String   @id @default(cuid())
+  kind              String   // ORDER | RENTAL | PRINT
+  refId             String
+  amount            Int
+  provider          String   // razorpay | test
+  providerOrderId   String   @unique
+  providerPaymentId String?
+  status            String   @default("CREATED") // CREATED | PAID | FAILED
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@index([kind, refId])
+}
+
+model Coupon {
+  id          String    @id @default(cuid())
+  code        String    @unique
+  title       String
+  description String
+  type        String    // PERCENT | FLAT
+  value       Int       // percent, or paise for FLAT
+  minOrder    Int       @default(0) // paise
+  maxDiscount Int?      // paise cap for PERCENT
+  appliesTo   String    @default("ALL") // ALL | SHOP | RENTAL | PRINT
+  membersOnly Boolean   @default(false)
+  startsAt    DateTime?
+  endsAt      DateTime?
+  usageLimit  Int?
+  usedCount   Int       @default(0)
+  showOnSite  Boolean   @default(true)
+  active      Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+}
+
+model TeamMember {
+  id            String  @id @default(cuid())
+  name          String
+  role          String
+  bio           String
+  photo         String?
+  linkedin      String?
+  isPlaceholder Boolean @default(false)
+  active        Boolean @default(true)
+  sortOrder     Int     @default(0)
+}
+
+model Project {
+  id        String   @id @default(cuid())
+  slug      String   @unique
+  title     String
+  tag       String   // HARDWARE | SOFTWARE | ...
+  status    String   // DELIVERED | IN DEVELOPMENT | PROTOTYPE | ...
+  year      Int
+  client    String?
+  summary   String
+  body      String   // plain paragraphs separated by blank lines
+  outcomes  String   @default("[]") // JSON string[]
+  stack     String   @default("[]") // JSON string[]
+  cover     String?
+  featured  Boolean  @default(false)
+  published Boolean  @default(true)
+  sortOrder Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  company   String?
+  email     String
+  phone     String?
+  topic     String
+  message   String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+// Key/value JSON blobs for editable site copy and configuration.
+model Setting {
+  key   String @id
+  value String
+}
