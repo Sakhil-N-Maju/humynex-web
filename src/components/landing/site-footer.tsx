@@ -15,7 +15,6 @@ export function SiteFooter({ socials, phone, email, address }: { socials: Social
     ["Rentals", "/rentals"],
     ["3D Print", "/print"],
     ["Projects", "/projects"],
-    ["Offers", "/offers"],
     ["About", "/about"],
     ["Contact", "/contact"],
   ];

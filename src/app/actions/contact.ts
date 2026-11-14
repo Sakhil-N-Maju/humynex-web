@@ -24,6 +24,11 @@ export async function sendMessage(_: FormState, form: FormData): Promise<FormSta
   }
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { company_website, ...data } = parsed.data;
-  await db.contactMessage.create({ data: { ...data, phone: data.phone || null, company: data.company || null } });
+  try {
+    await db.contactMessage.create({ data: { ...data, phone: data.phone || null, company: data.company || null } });
+  } catch {
+    // e.g. the read-only demo deploy
+    return { error: "Couldn't send right now. Please email or call us instead." };
+  }
   return { ok: true, message: "Message received. The team usually replies within one working day." };
 }

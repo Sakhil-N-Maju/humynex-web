@@ -218,7 +218,6 @@ export function Dock({ left, right }: { left: DockLink[]; right: DockLink[] }) {
                 { href: "/", label: "Home" },
                 ...left,
                 ...right,
-                { href: "/contact", label: "Contact" },
                 me ? { href: me.isAdmin ? "/admin" : "/account", label: me.isAdmin ? "Admin" : "My account" } : { href: "/login", label: "Sign in" },
               ].map((l, i) => (
                 <motion.a

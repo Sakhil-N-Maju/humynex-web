@@ -9,6 +9,6 @@ export const NAV_LEFT: DockLink[] = [
 ];
 
 export const NAV_RIGHT: DockLink[] = [
-  { href: "/offers", label: "Offers" },
+  { href: "/contact", label: "Contact" },
   { href: "/about", label: "About" },
 ];

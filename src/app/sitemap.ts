@@ -12,7 +12,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     db.rentalItem.findMany({ where: { active: true }, select: { slug: true } }),
     db.project.findMany({ where: { published: true }, select: { slug: true } }),
   ]);
-  const staticPages = ["", "/shop", "/rentals", "/print", "/projects", "/about", "/offers", "/contact", "/privacy", "/terms"];
+  const staticPages = ["", "/shop", "/rentals", "/print", "/projects", "/about", "/contact", "/privacy", "/terms"];
   return [
     ...staticPages.map((p) => ({ url: `${base}${p}`, changeFrequency: "weekly" as const, priority: p === "" ? 1 : 0.7 })),
     ...products.map((p) => ({ url: `${base}/shop/${p.slug}`, lastModified: p.updatedAt, priority: 0.6 })),

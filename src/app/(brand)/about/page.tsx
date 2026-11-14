@@ -5,8 +5,7 @@ import { LinkedinLogo } from "@phosphor-icons/react/dist/ssr";
 import { db } from "@/lib/db";
 import { getSettings } from "@/lib/settings";
 import { Reveal } from "@/components/fx/reveal";
-import { TrustSection } from "@/components/landing/trust-section";
-import { PageHero, DarkBand, WhiteSheet, SectionLabel, btnBlue, btnNavy, darkCurve } from "@/components/brand/page-hero";
+import { PageHero, DarkBand, WhiteSheet, SectionLabel, btnBlue, btnNavy } from "@/components/brand/page-hero";
 
 export const metadata: Metadata = {
   title: "About Humynex Robotics",
@@ -26,6 +25,30 @@ function initials(name: string, role: string) {
     .toUpperCase();
 }
 
+/**
+ * Brand-blue accents in the vision line, like a marker pass: "objects" gets a
+ * filled pill, "alongside" turns blue. If an admin rewrites the line and the
+ * words are gone, it simply renders plain.
+ */
+function highlightVision(text: string) {
+  return text.split(/(\s+)/).map((part, i) => {
+    const word = part.toLowerCase().replace(/[^a-z]/g, "");
+    if (word === "objects")
+      return (
+        <span key={i} className="inline-block rounded-[0.4em] bg-[#1E90FF] px-[0.18em] pb-[0.06em] leading-[1.05] text-white">
+          {part}
+        </span>
+      );
+    if (word === "alongside")
+      return (
+        <span key={i} className="text-[#1E90FF]">
+          {part}
+        </span>
+      );
+    return part;
+  });
+}
+
 export default async function AboutPage() {
   const [s, team] = await Promise.all([
     getSettings(),
@@ -37,13 +60,10 @@ export default async function AboutPage() {
 
   return (
     <>
-      <PageHero eyebrow="About · Kalady, Kerala" title={s.mission.vision} sub={s.mission.visionBody} />
+      <PageHero eyebrow="About · Kalady, Kerala" title={highlightVision(s.mission.vision)} sub={s.mission.visionBody} />
 
-      <div data-theme="dark" className={`${darkCurve} pt-1`}>
-        <TrustSection facts={s.stats} clients={s.clients} badges={s.badges} cta={{ href: "/contact", label: "Work with us" }} />
-      </div>
 
-      <DarkBand label="Mission">
+      <DarkBand curve label="Mission">
         <div className="mx-auto grid max-w-[1400px] gap-12 lg:grid-cols-[1fr_1.2fr] lg:gap-20">
           <Reveal>
             <SectionLabel n="01" dark>Mission</SectionLabel>
@@ -97,16 +117,31 @@ export default async function AboutPage() {
         </WhiteSheet>
       </div>
 
-      <DarkBand label="Principles">
-        <div className="mx-auto max-w-[1400px]">
-          <SectionLabel n="03" dark>Principles</SectionLabel>
-          <h2 className="display-wide mt-5 text-[2.4rem] md:text-[3.6rem]">What we hold to.</h2>
-          <div className="mt-12 grid gap-px overflow-hidden rounded-[28px] bg-white/10 md:grid-cols-2">
+      <DarkBand label="Principles" className="overflow-hidden !py-28 md:!py-36">
+        {/* faint vertical rules behind the cards */}
+        <div aria-hidden="true" className="pointer-events-none absolute inset-0 mx-auto grid max-w-[1400px] grid-cols-2 px-5 md:px-8 lg:grid-cols-4">
+          {[0, 1, 2, 3].map((n) => (
+            <span key={n} className={`border-l border-white/[0.06] ${n === 3 ? "border-r" : ""} ${n > 1 ? "hidden lg:block" : ""} ${n === 1 ? "max-lg:border-r" : ""}`} />
+          ))}
+        </div>
+
+        <div className="relative mx-auto max-w-[1400px]">
+          <div className="text-center">
+            <SectionLabel n="03" dark>Principles</SectionLabel>
+            <h2 className="display-wide mt-5 text-[2.6rem] md:text-[4.2rem]">What we hold to</h2>
+          </div>
+          <div className="mt-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             {s.pillars.map((p, i) => (
-              <Reveal key={p.title} delay={(i % 2) * 0.06} className="bg-[#0a1024] p-8 md:p-10">
-                <span className="font-mono text-sm text-[#67D4FF]">0{i + 1}</span>
-                <h3 className="display mt-4 text-2xl md:text-3xl">{p.title}</h3>
-                <p className="mt-3 max-w-[44ch] leading-relaxed text-white/60">{p.body}</p>
+              <Reveal
+                key={p.title}
+                delay={i * 0.07}
+                className="flex flex-col items-center rounded-[28px] bg-[#0f1630] px-7 pb-12 pt-10 text-center transition-colors duration-500 hover:bg-[#141d3d]"
+              >
+                <span className="grid size-12 place-items-center rounded-full bg-[#1E90FF] font-mono text-sm font-semibold text-[#050816]">
+                  {String(i + 1).padStart(2, "0")}
+                </span>
+                <h3 className="display mt-10 text-[1.4rem] md:text-[1.55rem]">{p.title}</h3>
+                <p className="mt-3 max-w-[28ch] leading-relaxed text-white/60">{p.body}</p>
               </Reveal>
             ))}
           </div>
