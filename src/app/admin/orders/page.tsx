@@ -21,7 +21,7 @@ export default async function AdminOrders({ searchParams }: { searchParams: Prom
       <Flash sp={sp} />
       <div className="mb-4 flex flex-wrap gap-2">
         {FILTERS.map((f) => (
-          <Link key={f} href={f === "ALL" ? "/admin/orders" : `/admin/orders?status=${f}`} className={clsx("rounded-[4px] border px-3 py-1.5 text-xs", f === status ? "border-volt bg-volt text-ink" : "border-line-2 text-fg-2 hover:text-fg")}>
+          <Link key={f} href={f === "ALL" ? "/admin/orders" : `/admin/orders?status=${f}`} className={clsx("rounded-[18px] border px-3 py-1.5 text-xs", f === status ? "border-volt bg-volt text-ink" : "border-line-2 text-fg-2 hover:text-fg")}>
             {f.replace(/_/g, " ").toLowerCase()}
           </Link>
         ))}

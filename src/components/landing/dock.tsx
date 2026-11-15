@@ -166,7 +166,7 @@ export function Dock({ left, right }: { left: DockLink[]; right: DockLink[] }) {
           {right.map((l) => renderLink(l))}
           {renderLink(
             me
-              ? { href: me.isAdmin ? "/admin" : "/account", label: me.isAdmin ? "Admin" : `${me.points} pts` }
+              ? { href: me.isAdmin ? "/admin" : "/account", label: me.isAdmin ? "Admin" : "Account" }
               : { href: "/login", label: "Sign in" },
             <UserCircle size={18} className="-ml-1 mr-1.5 inline-block align-[-0.2em]" />,
           )}

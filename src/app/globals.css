@@ -209,3 +209,35 @@ html.lenis, html.lenis body { height: auto; }
     scroll-behavior: auto !important;
   }
 }
+
+/* Admin panel: content sits on a white sheet like the site's light sections. The
+   theme tokens are remapped inside it, so every admin screen built on them
+   (text-fg-*, bg-ink-*, border-line*, .input, .btn) turns light at once. */
+@layer components {
+  .admin-light {
+    --color-fg: #050816;
+    --color-fg-2: rgb(5 8 22 / 0.66);
+    --color-fg-3: rgb(5 8 22 / 0.46);
+    --color-ink: #ffffff;
+    --color-ink-2: #f3f6fb;
+    --color-ink-3: #e9eef6;
+    --color-ink-4: #dbe3ef;
+    --color-line: rgb(5 8 22 / 0.08);
+    --color-line-2: rgb(5 8 22 / 0.16);
+    --color-volt-hi: #1e90ff;
+    --color-ok: #15803d;
+    --color-warn: #b45309;
+    --color-bad: #dc2626;
+    color-scheme: light;
+    color: var(--color-fg);
+  }
+  .admin-light .input { background-color: #fff; }
+  .admin-light .input:hover { border-color: rgb(5 8 22 / 0.3); }
+  .admin-light .input:focus { border-color: #1e90ff; box-shadow: 0 0 0 3px rgb(30 144 255 / 0.18); }
+  .admin-light .btn-ghost { border-color: rgb(5 8 22 / 0.18); background-color: #fff; color: #050816; }
+  .admin-light .btn-ghost:hover { border-color: #050816; }
+  .admin-light select.input {
+    background-image: linear-gradient(45deg, transparent 50%, rgb(5 8 22 / 0.6) 50%), linear-gradient(135deg, rgb(5 8 22 / 0.6) 50%, transparent 50%);
+  }
+  .admin-light ::selection { background: #1e90ff; color: #fff; }
+}

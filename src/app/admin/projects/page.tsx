@@ -1,25 +1,36 @@
 import Link from "next/link";
 import { db } from "@/lib/db";
-import { PageHead, Flash, Table } from "@/components/admin/ui";
+import { PageHead, Flash, Table, LiveTag, Thumb } from "@/components/admin/ui";
 
 export default async function AdminProjects({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const sp = await searchParams;
   const projects = await db.project.findMany({ orderBy: [{ sortOrder: "asc" }] });
   return (
     <div className="max-w-[1200px]">
-      <PageHead title="Projects" sub="Case studies shown on the Projects page and home page." action={{ href: "/admin/projects/new", label: "Add project" }} />
+      <PageHead
+        eyebrow="Website · Projects"
+        title="Projects"
+        sub="Builds shown on the Projects page and in “Our works” on the home page."
+        action={{ href: "/admin/projects/new", label: "Add project" }}
+      />
       <Flash sp={sp} />
-      <Table head={["Project", "Tag", "Status", "Year", "Visibility"]}>
+      <Table head={["Project", "Tag", "Stage", "Year", "Status"]}>
         {projects.map((p) => (
-          <tr key={p.id} className="hover:bg-ink-2">
-            <td className="px-4 py-3"><Link href={`/admin/projects/${p.id}`} className="font-medium hover:text-volt-hi">{p.title}</Link></td>
-            <td className="px-4 py-3 text-fg-2">{p.tag}</td>
-            <td className="px-4 py-3 text-fg-2">{p.status}</td>
-            <td className="px-4 py-3 font-mono">{p.year}</td>
-            <td className="px-4 py-3 text-xs">
-              {p.published ? <span className="text-ok">Published</span> : <span className="text-fg-3">Draft</span>}
-              {p.featured && <span className="ml-2 text-volt-hi">Featured</span>}
-              {!p.cover && <span className="ml-2 text-fg-3">No cover</span>}
+          <tr key={p.id}>
+            <td>
+              <Link href={`/admin/projects/${p.id}`} className="flex items-center gap-3 font-medium hover:text-[#1E90FF]">
+                <Thumb src={p.cover} />
+                {p.title}
+              </Link>
+            </td>
+            <td className="text-fg-2">{p.tag}</td>
+            <td className="text-fg-2">{p.status}</td>
+            <td className="font-mono">{p.year}</td>
+            <td>
+              <span className="flex flex-wrap gap-1.5">
+                <LiveTag live={p.published} liveLabel="Published" hiddenLabel="Draft" />
+                {p.featured && <span className="rounded-full bg-[#1E90FF]/10 px-2.5 py-1 text-xs font-medium text-[#1E90FF]">Lead</span>}
+              </span>
             </td>
           </tr>
         ))}

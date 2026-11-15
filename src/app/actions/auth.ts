@@ -3,7 +3,7 @@
 import { redirect } from "next/navigation";
 import { z } from "zod";
 import { db } from "@/lib/db";
-import { createSession, destroySession, hashPassword, verifyPassword } from "@/lib/auth";
+import { createSession, destroySession, hashPassword, verifyPassword, isAdmin } from "@/lib/auth";
 import { grantSignupBonus } from "@/lib/rewards";
 
 export type FormState = { error?: string; fieldErrors?: Record<string, string>; ok?: boolean; message?: string } | undefined;
@@ -56,7 +56,7 @@ export async function login(_: FormState, form: FormData): Promise<FormState> {
   }
   await createSession(user.id);
   const next = safeNext(form.get("next"));
-  redirect(user.role === "ADMIN" && next === "/account" ? "/admin" : next);
+  redirect((await isAdmin(user)) && next === "/account" ? "/admin" : next);
 }
 
 export async function logout() {

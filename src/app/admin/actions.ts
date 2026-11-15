@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { db } from "@/lib/db";
 import { assertAdmin } from "@/lib/auth";
 import { saveImage } from "@/lib/uploads";
-import { saveSetting, getSettings, type Settings } from "@/lib/settings";
+import { saveSetting, getSettings, getSetting, type Settings } from "@/lib/settings";
 
 /* ---------------- form helpers ---------------- */
 const str = (fd: FormData, k: string) => String(fd.get(k) ?? "").trim();
@@ -200,13 +200,13 @@ export async function saveTeam(fd: FormData) {
   };
   if (existing) await db.teamMember.update({ where: { id: existing.id }, data });
   else await db.teamMember.create({ data });
-  done("/admin/team");
+  done("/admin/about");
 }
 
 export async function deleteTeam(fd: FormData) {
   await assertAdmin();
   await db.teamMember.delete({ where: { id: str(fd, "id") } });
-  done("/admin/team", "deleted");
+  done("/admin/about", "deleted");
 }
 
 /* ---------------- offers ---------------- */
@@ -331,6 +331,23 @@ export async function adjustPoints(fd: FormData) {
 }
 
 /* ---------------- site content / settings ---------------- */
+/* ---------------- admin list ---------------- */
+export async function addAdmin(fd: FormData) {
+  await assertAdmin();
+  const email = str(fd, "email").toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) done("/admin/admins", "invalid");
+  const current = await getSetting("admins");
+  if (!current.includes(email)) await saveSetting("admins", [...current, email]);
+  done("/admin/admins");
+}
+
+export async function removeAdmin(fd: FormData) {
+  await assertAdmin();
+  const email = str(fd, "email").toLowerCase();
+  await saveSetting("admins", (await getSetting("admins")).filter((e) => e !== email));
+  done("/admin/admins", "deleted");
+}
+
 export async function saveSettingsSection(fd: FormData) {
   await assertAdmin();
   const section = str(fd, "section") as keyof Settings;
@@ -363,6 +380,15 @@ export async function saveSettingsSection(fd: FormData) {
         quote: str(fd, "quote"),
       });
       break;
+    case "pillars":
+      await saveSetting(
+        "pillars",
+        [0, 1, 2, 3, 4, 5].map((i) => ({ title: str(fd, `title${i}`), body: str(fd, `body${i}`) })).filter((x) => x.title),
+      );
+      break;
+    case "landing":
+      await saveSetting("landing", { ...s.landing, headline: str(fd, "headline"), sub: str(fd, "sub"), serviceArea: str(fd, "serviceArea") });
+      break;
     case "stats":
       await saveSetting(
         "stats",
@@ -392,7 +418,8 @@ export async function saveSettingsSection(fd: FormData) {
     default:
       throw new Error("Unknown section");
   }
-  done("/admin/content");
+  const back = str(fd, "back");
+  done(back.startsWith("/admin") ? back : "/admin/content");
 }
 
 export async function saveMaterial(fd: FormData) {

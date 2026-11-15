@@ -23,7 +23,7 @@ export default async function AdminPrint({ params, searchParams }: { params: Pro
       </div>
       <div className="mt-6"><Flash sp={sp} /></div>
       {j.needsReview && (
-        <p className="mt-4 rounded-[4px] border border-warn/40 bg-warn/10 px-4 py-3 text-sm text-warn">
+        <p className="mt-4 rounded-[18px] border border-warn/40 bg-warn/10 px-4 py-3 text-sm text-warn">
           Needs a manual quote: the part is outside the bed or suspiciously small (possibly wrong units). Set a price and move it to &ldquo;pending payment&rdquo;, and the customer can pay from their account.
         </p>
       )}

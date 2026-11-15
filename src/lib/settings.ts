@@ -77,6 +77,8 @@ export const DEFAULT_SETTINGS = {
     { q: "Can you build something custom, or set up a robotics lab?", a: "Yes. Tell us what you need and we'll reply within one working day, then share a scope, price and timeline after a short call." },
     { q: "How can we pay?", a: "Online through Razorpay: UPI, cards, net banking and wallets. Members can also pay up to 20% of an order with reward points." },
   ],
+  // Google accounts allowed into /admin once sign-in is switched on.
+  admins: [] as string[],
   announcement: {
     enabled: true,
     text: "New here? Create an account and get 150 reward points (₹150) on your first order.",

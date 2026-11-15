@@ -36,20 +36,20 @@ export default async function AdminHome() {
 
   return (
     <div className="max-w-[1200px]">
-      <h1 className="display text-3xl">Overview</h1>
+      <h1 className="display-wide text-[2.2rem] md:text-[2.9rem]">Overview</h1>
 
       {!razorpayConfigured() && (
-        <p className="mt-6 rounded-[4px] border border-warn/40 bg-warn/10 px-4 py-3 text-sm text-warn">
+        <p className="mt-6 rounded-[18px] border border-warn/40 bg-warn/10 px-4 py-3 text-sm text-warn">
           Razorpay keys aren&apos;t set, so checkout runs in test mode (no money is taken). Add RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET and RAZORPAY_WEBHOOK_SECRET to go live. Production builds refuse test payments.
         </p>
       )}
       {placeholders > 0 && (
-        <p className="mt-3 rounded-[4px] border border-line-2 px-4 py-3 text-sm text-fg-2">
+        <p className="mt-3 rounded-[18px] border border-line-2 px-4 py-3 text-sm text-fg-2">
           {placeholders} team profiles are still placeholders. <Link href="/admin/team" className="text-volt-hi hover:underline">Add real names and photos</Link>.
         </p>
       )}
 
-      <div className="mt-8 grid gap-px overflow-hidden rounded-[4px] bg-line sm:grid-cols-2 xl:grid-cols-4">
+      <div className="mt-8 grid gap-px overflow-hidden rounded-[18px] bg-line sm:grid-cols-2 xl:grid-cols-4">
         {tiles.map((t) => {
           const body = (
             <>
@@ -72,7 +72,7 @@ export default async function AdminHome() {
             <h2 className="font-semibold">Rentals in the next 7 days</h2>
             <Link href="/admin/bookings" className="text-sm text-volt-hi hover:underline">All bookings</Link>
           </div>
-          <ul className="mt-3 divide-y divide-line rounded-[4px] border border-line">
+          <ul className="mt-3 divide-y divide-line rounded-[18px] border border-line">
             {upcoming.length === 0 && <li className="px-4 py-6 text-sm text-fg-3">No confirmed rentals this week.</li>}
             {upcoming.map((b) => (
               <li key={b.id} className="flex items-center justify-between gap-4 px-4 py-3 text-sm">
@@ -91,7 +91,7 @@ export default async function AdminHome() {
             <h2 className="font-semibold">Low stock</h2>
             <Link href="/admin/products" className="text-sm text-volt-hi hover:underline">All products</Link>
           </div>
-          <ul className="mt-3 divide-y divide-line rounded-[4px] border border-line">
+          <ul className="mt-3 divide-y divide-line rounded-[18px] border border-line">
             {lowStock.length === 0 && <li className="px-4 py-6 text-sm text-fg-3">Everything has more than 5 in stock.</li>}
             {lowStock.map((p) => (
               <li key={p.id}>
@@ -109,7 +109,7 @@ export default async function AdminHome() {
             <h2 className="font-semibold">Latest orders</h2>
             <Link href="/admin/orders" className="text-sm text-volt-hi hover:underline">All orders</Link>
           </div>
-          <ul className="mt-3 divide-y divide-line rounded-[4px] border border-line">
+          <ul className="mt-3 divide-y divide-line rounded-[18px] border border-line">
             {recentOrders.length === 0 && <li className="px-4 py-6 text-sm text-fg-3">No orders yet.</li>}
             {recentOrders.map((o) => (
               <li key={o.id}>

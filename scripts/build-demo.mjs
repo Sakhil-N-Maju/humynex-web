@@ -3,6 +3,8 @@
 import { execSync } from "node:child_process";
 
 process.env.DATABASE_URL ||= "file:./demo.db";
+// opens /admin without sign-in and makes its saves a no-op with a notice
+process.env.NEXT_PUBLIC_DEMO_MODE = "1";
 const run = (cmd) => execSync(cmd, { stdio: "inherit", env: process.env });
 
 run("npx prisma db push --skip-generate");

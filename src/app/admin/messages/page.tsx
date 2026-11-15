@@ -13,9 +13,9 @@ export default async function AdminMessages({ searchParams }: { searchParams: Pr
       {messages.length === 0 && <p className="text-fg-3">No messages yet.</p>}
       <ul className="space-y-3">
         {messages.map((m) => (
-          <li key={m.id} className={clsx("rounded-[4px] border p-5", m.read ? "border-line" : "border-volt/50 bg-volt/5")}>
+          <li key={m.id} className={clsx("rounded-[18px] border p-5", m.read ? "border-line" : "border-volt/50 bg-volt/5")}>
             <div className="flex flex-wrap items-baseline justify-between gap-2">
-              <p className="font-semibold">{m.name}{m.company && <span className="font-normal text-fg-2">, {m.company}</span>} <span className="ml-2 rounded-[4px] border border-line-2 px-1.5 py-0.5 text-xs font-normal text-fg-2">{m.topic}</span></p>
+              <p className="font-semibold">{m.name}{m.company && <span className="font-normal text-fg-2">, {m.company}</span>} <span className="ml-2 rounded-[18px] border border-line-2 px-1.5 py-0.5 text-xs font-normal text-fg-2">{m.topic}</span></p>
               <span className="text-xs text-fg-3">{m.createdAt.toLocaleString("en-IN")}</span>
             </div>
             <p className="mt-1 text-sm">
