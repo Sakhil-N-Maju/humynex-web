@@ -6,6 +6,7 @@ import { getUser } from "@/lib/auth";
 import { evaluateCoupon } from "@/lib/coupons";
 import { daysInclusive, parseDay, unitsBooked, dayString } from "@/lib/rentals";
 import { refNumber } from "@/lib/ids";
+import { formatINR } from "@/lib/money";
 
 export type RentalQuote =
   | { ok: true; days: number; rent: number; deposit: number; discount: number; total: number; available: number; couponTitle?: string; couponError?: string }
@@ -97,4 +98,40 @@ export async function createBooking(
     },
   });
   return { ok: true, bookingId: booking.id };
+}
+
+/**
+ * A rental enquiry instead of an instant booking: checks the dates are still
+ * free, then files it with the team's messages (topic "Robot rental") so they
+ * can call back, confirm and take payment.
+ */
+export async function sendRentalEnquiry(
+  input: z.input<typeof bookingSchema>,
+): Promise<{ ok: true } | { ok: false; error?: string; fieldErrors?: Record<string, string> }> {
+  const parsed = bookingSchema.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, fieldErrors: Object.fromEntries(parsed.error.issues.map((i) => [String(i.path[0]), i.message])) };
+  }
+  const d = parsed.data;
+  const q = await quote(d.itemId, d.start, d.end, d.quantity);
+  if (!q.ok) return { ok: false, error: q.error };
+
+  const message = [
+    `Rental enquiry: ${q.item?.name ?? d.itemId}`,
+    `Dates: ${d.start} to ${d.end} (${q.days} day${q.days > 1 ? "s" : ""})`,
+    `Units: ${d.quantity}`,
+    `Estimate shown: rent ${formatINR(q.rent)} + refundable deposit ${formatINR(q.deposit)} = ${formatINR(q.total)}`,
+    `Venue: ${d.venue}`,
+    d.notes ? `Notes: ${d.notes}` : "",
+  ]
+    .filter(Boolean)
+    .join("\n");
+
+  try {
+    await db.contactMessage.create({ data: { name: d.name, email: d.email, phone: d.phone, topic: "Robot rental", message } });
+  } catch {
+    // e.g. the read-only demo deploy
+    return { ok: false, error: "Couldn't send right now. Please call or email us instead." };
+  }
+  return { ok: true };
 }

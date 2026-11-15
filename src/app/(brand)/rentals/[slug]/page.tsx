@@ -6,6 +6,8 @@ import { db, parseJSON } from "@/lib/db";
 import { getUser } from "@/lib/auth";
 import { blockedDays } from "@/lib/rentals";
 import { Plate } from "@/components/ui/plate";
+import { ModelViewer } from "@/components/rentals/model-viewer";
+import { RENTAL_MODELS, RENTAL_TINTS } from "@/lib/rental-models";
 import { formatINR } from "@/lib/money";
 import { DarkCurve } from "@/components/brand/page-hero";
 import { BookingWidget } from "./booking-widget";
@@ -26,6 +28,7 @@ export default async function RentalPage({ params }: Props) {
   const [blocked, user] = await Promise.all([blockedDays(it.id, it.units), getUser()]);
   const includes = parseJSON<string[]>(it.includes, []);
   const goodFor = parseJSON<string[]>(it.goodFor, []);
+  const model = RENTAL_MODELS[it.slug];
 
   return (
     <>
@@ -36,15 +39,22 @@ export default async function RentalPage({ params }: Props) {
         </Link>
         <div className="mt-8 grid gap-12 lg:grid-cols-[1.15fr_1fr] lg:gap-16">
           <div>
-            <Plate
-              src={it.image}
-              alt={it.name}
-              kind={it.slug}
-              priority
-              chamfer={false}
-              className="aspect-[4/3] w-full rounded-[28px]"
-              sizes="(min-width:1024px) 55vw, 100vw"
-            />
+            {model ? (
+              <div className="relative aspect-square w-full sm:aspect-[5/4]">
+                <div aria-hidden="true" className="absolute inset-[12%] rounded-full bg-[radial-gradient(closest-side,rgb(30_144_255/0.16),transparent)]" />
+                <ModelViewer src={model} label={it.name} tone="light" tint={RENTAL_TINTS[it.slug]} className="absolute inset-0" />
+              </div>
+            ) : (
+              <Plate
+                src={it.image}
+                alt={it.name}
+                kind={it.slug}
+                priority
+                chamfer={false}
+                className="aspect-[4/3] w-full rounded-[28px]"
+                sizes="(min-width:1024px) 55vw, 100vw"
+              />
+            )}
             <h1 className="display-wide mt-12 text-[2.6rem] md:text-[3.8rem]">{it.name}</h1>
             <p className="mt-4 text-xl text-[#050816]/65">{it.tagline}</p>
             <div className="mt-8 max-w-[62ch] space-y-4 leading-relaxed text-[#050816]/70">

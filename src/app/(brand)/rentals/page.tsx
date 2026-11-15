@@ -3,6 +3,7 @@ import { db, parseJSON } from "@/lib/db";
 import { RentalRow, type RentalRowData } from "@/components/rentals/rental-row";
 import { Reveal } from "@/components/fx/reveal";
 import { formatINR } from "@/lib/money";
+import { RENTAL_MODELS, RENTAL_TINTS } from "@/lib/rental-models";
 import { PageHero, DarkBand, WhiteSheet, SectionLabel, btnBlue } from "@/components/brand/page-hero";
 
 export const metadata: Metadata = {
@@ -11,27 +12,8 @@ export const metadata: Metadata = {
   alternates: { canonical: "/rentals" },
 };
 
-// Web-compressed 3D models (public/models, made with
-// gltf-transform optimize), by rental slug. Rentals without one show their photo.
-const MODELS: Record<string, string> = {
-  "robot-dog": "/models/robot-dog.glb",
-  "serving-robot": "/models/serving-robot.glb",
-  "bumblebee-costume": "/models/bumblebee-costume.glb",
-  "kuka-robotic-arm": "/models/kuka-robotic-arm.glb",
-};
-
 // Rentals kept off this page for now (still in admin and reachable by link).
 const HIDDEN = new Set(["ixi-trolley-fleet", "stardust-rover-demo"]);
-
-// Material recolours so models match the real units (names come from each model file).
-const TINTS: Record<string, RentalRowData["tint"]> = {
-  // gunmetal grey aluminium, like the real robot dog
-  "robot-dog": {
-    material_100100100: { color: "#a3a7ad", metalness: 0.6, roughness: 0.38 }, // body shells
-    material_737373: { color: "#80858c", metalness: 0.55, roughness: 0.42 }, // leg parts
-    material_4C4C4C: { color: "#4b4f55", metalness: 0.45, roughness: 0.4 }, // joints and details
-  },
-};
 
 // The key phrase in each tagline, set in brand blue.
 const HIGHLIGHTS: Record<string, string> = {
@@ -66,9 +48,9 @@ export default async function RentalsPage() {
     dailyRate: formatINR(it.dailyRate),
     goodFor: parseJSON<string[]>(it.goodFor, []).slice(0, 3),
     image: it.image,
-    model: MODELS[it.slug],
+    model: RENTAL_MODELS[it.slug],
     highlight: HIGHLIGHTS[it.slug],
-    tint: TINTS[it.slug],
+    tint: RENTAL_TINTS[it.slug],
   }));
 
   return (
