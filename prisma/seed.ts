@@ -199,9 +199,9 @@ async function main() {
       goodFor: ["Birthday parties", "Stage entries", "Brand promotions", "Cinema premieres"],
     },
     {
-      slug: "kuma-robotic-arm", name: "Kuma Robotic Arm Demo Unit", kind: "ROBOT", sortOrder: 4,
+      slug: "kuka-robotic-arm", name: "KUKA Robotic Arm Demo Unit", kind: "ROBOT", sortOrder: 4,
       tagline: "An industrial-style arm for expos, demos and lab sessions.",
-      description: "Our Kuma arm on a mobile base, programmed for pick-and-place and drawing demos. Teams rent it for expos, engineering open days and short training sessions.",
+      description: "Our KUKA arm on a mobile base, programmed for pick-and-place and drawing demos. Teams rent it for expos, engineering open days and short training sessions.",
       dailyRate: r(5500), deposit: r(30000), minDays: 1, units: 1,
       includes: ["Engineer on site", "Pick-and-place and drawing routines", "Safety barrier kit"],
       goodFor: ["Industry expos", "Engineering open days", "Workshops"],

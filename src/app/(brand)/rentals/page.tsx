@@ -17,7 +17,7 @@ const MODELS: Record<string, string> = {
   "robot-dog": "/models/robot-dog.glb",
   "serving-robot": "/models/serving-robot.glb",
   "bumblebee-costume": "/models/bumblebee-costume.glb",
-  "kuma-robotic-arm": "/models/kuma-robotic-arm.glb",
+  "kuka-robotic-arm": "/models/kuka-robotic-arm.glb",
 };
 
 // Rentals kept off this page for now (still in admin and reachable by link).
@@ -38,18 +38,11 @@ const HIGHLIGHTS: Record<string, string> = {
   "robot-dog": "dances on cue",
   "serving-robot": "mapped route",
   "bumblebee-costume": "wearable robot suit",
-  "kuma-robotic-arm": "industrial-style arm",
+  "kuka-robotic-arm": "industrial-style arm",
   "ixi-trolley-fleet": "follow guests",
   "stardust-rover-demo": "live camera feed",
 };
 
-// Attribution required by each model's licence (see model-sources/3d/*/license.txt).
-const CREDITS = [
-  { title: "Robot dog Unitree Go2", author: "C. Yamahata", license: "CC BY 4.0", href: "https://sketchfab.com/3d-models/robot-dog-unitree-go2-7af84eb9ba834f27bbac818a8b96e2da" },
-  { title: "Bellabot/Kerfus", author: "Linnaeus", license: "CC BY 4.0", href: "https://sketchfab.com/3d-models/bellabotkerfus-04993aee7ec744189c25e5a4215b1162" },
-  { title: "Transformers 2007 Movie: Bumblebee 2007", author: "Primus03", license: "CC BY 4.0", href: "https://sketchfab.com/3d-models/transformers-2007-movie-bumblebee-2007-10e1cceb4f1d4ab8bdb0c768afafad2c" },
-  { title: "Robotic Arm KUKA", author: "Vladislav Krutenyuk", license: "CC BY-NC 4.0", href: "https://sketchfab.com/3d-models/robotic-arm-kuka-0211a7f80bdc48f784af6796913af96b" },
-];
 
 function firstSentences(text: string, n: number) {
   const parts = text.match(/[^.!?]+[.!?]+/g);
@@ -99,19 +92,6 @@ export default async function RentalsPage() {
         <RentalRow key={r.slug} item={r} index={i} />
       ))}
 
-      <DarkBand label="Model credits" className="!py-12">
-        <div className="mx-auto max-w-[1300px]">
-          <p className="border-t border-white/10 pt-6 text-xs leading-relaxed text-white/40">
-            3D models:{" "}
-            {CREDITS.map((c, i) => (
-              <span key={c.href}>
-                {i > 0 && " · "}
-                <a href={c.href} target="_blank" rel="noreferrer" className="underline underline-offset-2 hover:text-white/70">{c.title}</a> by {c.author} ({c.license})
-              </span>
-            ))}
-          </p>
-        </div>
-      </DarkBand>
 
       <div className="px-3 md:px-4">
         <WhiteSheet label="How renting works" className="max-w-[1500px]">
