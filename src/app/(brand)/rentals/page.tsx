@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr";
 import { db, parseJSON } from "@/lib/db";
-import { Plate } from "@/components/ui/plate";
+import { RentalRow, type RentalRowData } from "@/components/rentals/rental-row";
 import { Reveal } from "@/components/fx/reveal";
 import { formatINR } from "@/lib/money";
 import { PageHero, DarkBand, WhiteSheet, SectionLabel, btnBlue } from "@/components/brand/page-hero";
@@ -13,6 +11,51 @@ export const metadata: Metadata = {
   alternates: { canonical: "/rentals" },
 };
 
+// Web-compressed 3D models (public/models, made with
+// gltf-transform optimize), by rental slug. Rentals without one show their photo.
+const MODELS: Record<string, string> = {
+  "robot-dog": "/models/robot-dog.glb",
+  "serving-robot": "/models/serving-robot.glb",
+  "bumblebee-costume": "/models/bumblebee-costume.glb",
+  "kuma-robotic-arm": "/models/kuma-robotic-arm.glb",
+};
+
+// Rentals kept off this page for now (still in admin and reachable by link).
+const HIDDEN = new Set(["ixi-trolley-fleet", "stardust-rover-demo"]);
+
+// Material recolours so models match the real units (names come from each model file).
+const TINTS: Record<string, RentalRowData["tint"]> = {
+  // gunmetal grey aluminium, like the real robot dog
+  "robot-dog": {
+    material_100100100: { color: "#a3a7ad", metalness: 0.6, roughness: 0.38 }, // body shells
+    material_737373: { color: "#80858c", metalness: 0.55, roughness: 0.42 }, // leg parts
+    material_4C4C4C: { color: "#4b4f55", metalness: 0.45, roughness: 0.4 }, // joints and details
+  },
+};
+
+// The key phrase in each tagline, set in brand blue.
+const HIGHLIGHTS: Record<string, string> = {
+  "robot-dog": "dances on cue",
+  "serving-robot": "mapped route",
+  "bumblebee-costume": "wearable robot suit",
+  "kuma-robotic-arm": "industrial-style arm",
+  "ixi-trolley-fleet": "follow guests",
+  "stardust-rover-demo": "live camera feed",
+};
+
+// Attribution required by each model's licence (see model-sources/3d/*/license.txt).
+const CREDITS = [
+  { title: "Robot dog Unitree Go2", author: "C. Yamahata", license: "CC BY 4.0", href: "https://sketchfab.com/3d-models/robot-dog-unitree-go2-7af84eb9ba834f27bbac818a8b96e2da" },
+  { title: "Bellabot/Kerfus", author: "Linnaeus", license: "CC BY 4.0", href: "https://sketchfab.com/3d-models/bellabotkerfus-04993aee7ec744189c25e5a4215b1162" },
+  { title: "Transformers 2007 Movie: Bumblebee 2007", author: "Primus03", license: "CC BY 4.0", href: "https://sketchfab.com/3d-models/transformers-2007-movie-bumblebee-2007-10e1cceb4f1d4ab8bdb0c768afafad2c" },
+  { title: "Robotic Arm KUKA", author: "Vladislav Krutenyuk", license: "CC BY-NC 4.0", href: "https://sketchfab.com/3d-models/robotic-arm-kuka-0211a7f80bdc48f784af6796913af96b" },
+];
+
+function firstSentences(text: string, n: number) {
+  const parts = text.match(/[^.!?]+[.!?]+/g);
+  return parts ? parts.slice(0, n).join("").trim() : text;
+}
+
 const STEPS = [
   ["Book", "Pick your dates and pay the rent plus a refundable deposit online."],
   ["Plan", "We call within a working day to confirm timings, venue access and power."],
@@ -21,7 +64,19 @@ const STEPS = [
 
 export default async function RentalsPage() {
   const items = await db.rentalItem.findMany({ where: { active: true }, orderBy: { sortOrder: "asc" } });
-  const [lead, ...rest] = items;
+  const rows: RentalRowData[] = items.filter((it) => !HIDDEN.has(it.slug)).map((it) => ({
+    slug: it.slug,
+    name: it.name,
+    tagline: it.tagline,
+    // first paragraph only, kept short
+    blurb: firstSentences(it.description.split(/\n\s*\n/)[0] ?? it.tagline, 2),
+    dailyRate: formatINR(it.dailyRate),
+    goodFor: parseJSON<string[]>(it.goodFor, []).slice(0, 3),
+    image: it.image,
+    model: MODELS[it.slug],
+    highlight: HIGHLIGHTS[it.slug],
+    tint: TINTS[it.slug],
+  }));
 
   return (
     <>
@@ -33,79 +88,28 @@ export default async function RentalsPage() {
         <a href="#fleet" className={btnBlue}>See the fleet</a>
       </PageHero>
 
-      <DarkBand curve id="fleet" label="The fleet">
-        <div className="mx-auto max-w-[1400px]">
+      <DarkBand curve id="fleet" label="The fleet" className="!pb-0 md:!pb-4">
+        <div className="mx-auto max-w-[1300px] text-center">
           <SectionLabel n="01" dark>The fleet</SectionLabel>
+          <h2 className="display-wide mx-auto mt-5 max-w-[14ch] text-[2.6rem] md:text-[4.2rem]">Meet the robots you can book.</h2>
+        </div>
+      </DarkBand>
 
-          {lead && (
-            <Reveal className="mt-10">
-              <Link
-                data-theme="light"
-                href={`/rentals/${lead.slug}`}
-                className="group grid gap-3 rounded-[32px] bg-white p-3 text-[#050816] lg:grid-cols-[1.4fr_1fr]"
-              >
-                <div className="overflow-hidden rounded-[24px]">
-                  <Plate
-                    src={lead.image}
-                    alt={lead.name}
-                    kind={lead.slug}
-                    priority
-                    chamfer={false}
-                    className="aspect-[16/10] w-full transition-transform duration-700 group-hover:scale-[1.03]"
-                    sizes="(min-width:1024px) 60vw, 100vw"
-                  />
-                </div>
-                <div className="flex flex-col p-5 md:p-8">
-                  <span className="font-mono text-[0.68rem] uppercase tracking-[0.1em] text-[#1E90FF]">Most booked</span>
-                  <h2 className="display-wide mt-3 text-[2.4rem] md:text-[3.2rem]">{lead.name}</h2>
-                  <p className="mt-3 text-lg text-[#050816]/65">{lead.tagline}</p>
-                  <div className="mt-6 flex flex-wrap gap-2">
-                    {parseJSON<string[]>(lead.goodFor, []).map((g) => (
-                      <span key={g} className="rounded-full bg-[#f2f5fa] px-3 py-1 text-sm text-[#050816]/70">{g}</span>
-                    ))}
-                  </div>
-                  <div className="mt-auto flex flex-wrap items-end justify-between gap-6 pt-10">
-                    <div>
-                      <span className="font-mono text-3xl">{formatINR(lead.dailyRate)}</span>
-                      <span className="text-[#050816]/50"> / day</span>
-                    </div>
-                    <span className={btnBlue}>
-                      Check dates <ArrowUpRight size={16} weight="bold" />
-                    </span>
-                  </div>
-                </div>
-              </Link>
-            </Reveal>
-          )}
+      {rows.map((r, i) => (
+        <RentalRow key={r.slug} item={r} index={i} />
+      ))}
 
-          <div className="mt-5 grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-            {rest.map((it, i) => (
-              <Reveal key={it.id} delay={(i % 3) * 0.06} className="h-full">
-                <Link data-theme="light" href={`/rentals/${it.slug}`} className="group flex h-full flex-col rounded-[24px] bg-white p-3 text-[#050816]">
-                  <div className="overflow-hidden rounded-[16px]">
-                    <Plate
-                      src={it.image}
-                      alt={it.name}
-                      kind={it.slug}
-                      chamfer={false}
-                      className="aspect-[4/3] w-full transition-transform duration-700 group-hover:scale-[1.03]"
-                      sizes="(min-width:1280px) 33vw, 50vw"
-                    />
-                  </div>
-                  <div className="flex flex-1 items-start justify-between gap-4 px-2 pb-2 pt-5">
-                    <div>
-                      <h2 className="display text-2xl group-hover:text-[#1E90FF]">{it.name}</h2>
-                      <p className="mt-1.5 text-[#050816]/60">{it.tagline}</p>
-                    </div>
-                    <div className="shrink-0 text-right">
-                      <span className="block font-mono text-lg">{formatINR(it.dailyRate)}</span>
-                      <span className="text-xs text-[#050816]/50">per day</span>
-                    </div>
-                  </div>
-                </Link>
-              </Reveal>
+      <DarkBand label="Model credits" className="!py-12">
+        <div className="mx-auto max-w-[1300px]">
+          <p className="border-t border-white/10 pt-6 text-xs leading-relaxed text-white/40">
+            3D models:{" "}
+            {CREDITS.map((c, i) => (
+              <span key={c.href}>
+                {i > 0 && " · "}
+                <a href={c.href} target="_blank" rel="noreferrer" className="underline underline-offset-2 hover:text-white/70">{c.title}</a> by {c.author} ({c.license})
+              </span>
             ))}
-          </div>
+          </p>
         </div>
       </DarkBand>
 

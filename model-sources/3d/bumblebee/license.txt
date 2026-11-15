@@ -1,0 +1,11 @@
+Model Information:
+* title:	Transformers 2007 Movie: Bumblebee 2007
+* source:	https://sketchfab.com/3d-models/transformers-2007-movie-bumblebee-2007-10e1cceb4f1d4ab8bdb0c768afafad2c
+* author:	Primus03 (https://sketchfab.com/Primus03)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Transformers 2007 Movie: Bumblebee 2007" (https://sketchfab.com/3d-models/transformers-2007-movie-bumblebee-2007-10e1cceb4f1d4ab8bdb0c768afafad2c) by Primus03 (https://sketchfab.com/Primus03) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

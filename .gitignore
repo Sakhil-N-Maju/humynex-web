@@ -46,3 +46,7 @@ next-env.d.ts
 /storage/
 /public/uploads/
 !.env.example
+
+# original 3D model sources (large); web copies live in public/models
+/model-sources/**/*.bin
+/model-sources/**/textures/
