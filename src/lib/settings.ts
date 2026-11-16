@@ -89,8 +89,15 @@ export const DEFAULT_SETTINGS = {
 export type Settings = typeof DEFAULT_SETTINGS;
 export type SettingKey = keyof Settings;
 
-export async function getSettings(): Promise<Settings> {
-  const rows = await db.setting.findMany();
+/**
+ * Inside a transaction, pass its client: the database allows one connection
+ * per server instance, so a read through `db` would wait forever for the
+ * connection the transaction is holding.
+ */
+type SettingsReader = { setting: Pick<typeof db.setting, "findMany"> };
+
+export async function getSettings(client: SettingsReader = db): Promise<Settings> {
+  const rows = await client.setting.findMany();
   const merged = structuredClone(DEFAULT_SETTINGS) as Settings;
   for (const row of rows) {
     if (row.key in merged) {
@@ -109,8 +116,8 @@ export async function getSettings(): Promise<Settings> {
   return merged;
 }
 
-export async function getSetting<K extends SettingKey>(key: K): Promise<Settings[K]> {
-  const s = await getSettings();
+export async function getSetting<K extends SettingKey>(key: K, client: SettingsReader = db): Promise<Settings[K]> {
+  const s = await getSettings(client);
   return s[key];
 }
 

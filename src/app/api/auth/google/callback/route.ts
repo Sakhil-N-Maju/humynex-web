@@ -1,10 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { randomBytes } from "node:crypto";
-import { db } from "@/lib/db";
-import { createSession, hashPassword } from "@/lib/auth";
+import { createSession, findOrCreateGoogleUser } from "@/lib/auth";
 import { isAdminEmail } from "@/lib/admin-access";
 import { googleProfileFromCode, GOOGLE_STATE_COOKIE } from "@/lib/google";
-import { grantSignupBonus } from "@/lib/rewards";
 
 export const dynamic = "force-dynamic";
 
@@ -41,28 +38,17 @@ export async function GET(req: NextRequest) {
     return fail("failed");
   }
 
-  // Find or create the account. On the read-only demo the database can't be
-  // written, so the session carries the profile itself instead.
-  let userId: string | null = null;
+  // Find or create the account. Without a saved account, orders, bookings and
+  // points can't be linked to them, so a database failure stops sign-in here.
+  let userId: string;
   try {
-    const existing = await db.user.findUnique({ where: { email: profile.email } });
-    if (existing) userId = existing.id;
-    else {
-      const created = await db.$transaction(async (tx) => {
-        const u = await tx.user.create({
-          // Google accounts never use a password; store an unguessable one
-          data: { email: profile.email, name: profile.name, passwordHash: await hashPassword(randomBytes(32).toString("hex")) },
-        });
-        await grantSignupBonus(u.id, tx);
-        return u;
-      });
-      userId = created.id;
-    }
-  } catch {
-    userId = null;
+    userId = (await findOrCreateGoogleUser(profile)).id;
+  } catch (e) {
+    console.error("[google sign-in] account", e instanceof Error ? e.message : e);
+    return fail("failed");
   }
   try {
-    await createSession(userId ?? "", userId ? undefined : profile);
+    await createSession(userId);
   } catch (e) {
     // almost always a missing or short AUTH_SECRET on the server
     console.error("[google sign-in] session", e instanceof Error ? e.message : e);

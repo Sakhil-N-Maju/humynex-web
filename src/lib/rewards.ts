@@ -6,7 +6,7 @@ import { getSetting } from "./settings";
 type Tx = Prisma.TransactionClient;
 
 export async function grantSignupBonus(userId: string, tx: Tx = db) {
-  const { signupBonus } = await getSetting("rewards");
+  const { signupBonus } = await getSetting("rewards", tx);
   if (signupBonus <= 0) return 0;
   await tx.pointsEntry.create({
     data: { userId, delta: signupBonus, reason: "SIGNUP_BONUS", note: "Welcome to Humynex" },
@@ -18,8 +18,8 @@ export async function grantSignupBonus(userId: string, tx: Tx = db) {
   return signupBonus;
 }
 
-export async function pointsForAmount(paidPaise: number) {
-  const { pointsPer100 } = await getSetting("rewards");
+export async function pointsForAmount(paidPaise: number, client: Tx = db) {
+  const { pointsPer100 } = await getSetting("rewards", client);
   return Math.floor(paidPaise / 100 / 100) * pointsPer100;
 }
 
@@ -32,7 +32,7 @@ export async function awardPurchase(
   label: string,
 ) {
   if (!userId) return 0;
-  const pts = await pointsForAmount(paidPaise);
+  const pts = await pointsForAmount(paidPaise, tx);
   if (pts <= 0) return 0;
   await tx.pointsEntry.create({
     data: { userId, delta: pts, reason: "PURCHASE", refType, refId, note: label },

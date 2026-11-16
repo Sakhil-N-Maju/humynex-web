@@ -25,14 +25,9 @@ export async function verifyPassword(pw: string, hash: string) {
   return bcrypt.compare(pw, hash);
 }
 
-/**
- * Starts a session. Pass a profile for a Google sign-in that couldn't be saved
- * to the database (the read-only demo): the session then carries the email and
- * name itself instead of pointing at a user row.
- */
-export async function createSession(userId: string, profile?: { email: string; name: string }) {
-  const claims = profile ? { sub: `g:${profile.email}`, email: profile.email, name: profile.name } : { sub: userId };
-  const token = await new SignJWT(claims)
+/** Starts a session for a user row. */
+export async function createSession(userId: string) {
+  const token = await new SignJWT({ sub: userId })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
     .setExpirationTime(`${MAX_AGE}s`)
@@ -62,6 +57,34 @@ export type SessionUser = {
   lifetimePts: number;
 };
 
+const USER_FIELDS = { id: true, email: true, name: true, phone: true, role: true, points: true, lifetimePts: true } as const;
+
+/**
+ * The account for a verified Google profile, created on first sign-in (with
+ * the signup bonus). Google accounts get an unguessable password they never use.
+ */
+export async function findOrCreateGoogleUser(profile: { email: string; name: string }): Promise<SessionUser> {
+  const email = profile.email.toLowerCase();
+  const existing = await db.user.findUnique({ where: { email }, select: USER_FIELDS });
+  if (existing) return existing;
+  const { randomBytes } = await import("node:crypto");
+  const { grantSignupBonus } = await import("./rewards");
+  const passwordHash = await hashPassword(randomBytes(32).toString("hex"));
+  try {
+    const id = await db.$transaction(async (tx) => {
+      const u = await tx.user.create({ data: { email, name: profile.name || email, passwordHash } });
+      await grantSignupBonus(u.id, tx);
+      return u.id;
+    });
+    return await db.user.findUniqueOrThrow({ where: { id }, select: USER_FIELDS });
+  } catch (e) {
+    // two tabs signing in at once: the other one created it
+    const again = await db.user.findUnique({ where: { email }, select: USER_FIELDS });
+    if (again) return again;
+    throw e;
+  }
+}
+
 // Cached per request so layouts and pages share one lookup.
 export const getUser = cache(async (): Promise<SessionUser | null> => {
   const jar = await cookies();
@@ -70,14 +93,14 @@ export const getUser = cache(async (): Promise<SessionUser | null> => {
   try {
     const { payload } = await jwtVerify(token, secret());
     if (!payload.sub) return null;
+    // Older sessions from before the database was connected carry only the
+    // Google profile. Link them to a real account so orders and points work.
     if (payload.sub.startsWith("g:") && typeof payload.email === "string") {
-      return { id: payload.sub, email: payload.email, name: String(payload.name ?? payload.email), phone: null, role: "CUSTOMER", points: 0, lifetimePts: 0 };
+      return await findOrCreateGoogleUser({ email: payload.email, name: String(payload.name ?? payload.email) });
     }
-    return await db.user.findUnique({
-      where: { id: payload.sub },
-      select: { id: true, email: true, name: true, phone: true, role: true, points: true, lifetimePts: true },
-    });
-  } catch {
+    return await db.user.findUnique({ where: { id: payload.sub }, select: USER_FIELDS });
+  } catch (e) {
+    console.error("[session]", e instanceof Error ? e.message : e);
     return null;
   }
 });

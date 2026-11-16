@@ -11,6 +11,7 @@ import {
   type PaymentIntent,
 } from "@/lib/payments";
 import { db } from "@/lib/db";
+import { publicMessage } from "@/lib/errors";
 
 type Result<T> = { ok: true; data: T } | { ok: false; error: string };
 
@@ -21,7 +22,7 @@ export async function startPayment(kind: PayKind, refId: string): Promise<Result
     const k = kindSchema.parse(kind);
     return { ok: true, data: await createPaymentIntent(k, z.string().min(1).parse(refId)) };
   } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : "Couldn't start the payment." };
+    return { ok: false, error: publicMessage(e, "Couldn't start the payment. Please try again, or contact us.", "payment") };
   }
 }
 

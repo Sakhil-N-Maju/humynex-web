@@ -7,6 +7,7 @@ import { evaluateCoupon, type CouponScope } from "@/lib/coupons";
 import { maxRedeemable } from "@/lib/rewards";
 import { getSetting } from "@/lib/settings";
 import { refNumber } from "@/lib/ids";
+import { publicMessage } from "@/lib/errors";
 
 export async function previewCoupon(code: string, scope: CouponScope, amount: number) {
   const user = await getUser();
@@ -147,7 +148,7 @@ export async function createOrder(
     return o;
     });
   } catch (e) {
-    return { ok: false, error: e instanceof Error ? e.message : "Couldn't create the order." };
+    return { ok: false, error: publicMessage(e, "Couldn't place your order. Please try again, or contact us.", "checkout") };
   }
 
   return { ok: true, orderId: order.id };
