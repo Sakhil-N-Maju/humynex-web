@@ -7,7 +7,7 @@ import { FileArrowUp, Lock, Warning, X } from "@phosphor-icons/react";
 import clsx from "clsx";
 import { analyzeMesh, MAX_UPLOAD_BYTES, MeshError, type MeshStats } from "@/lib/mesh";
 import { estimatePrint, type PrintConfig } from "@/lib/print-pricing";
-import { createPrintJob } from "@/app/actions/print";
+import { createPrintJob, startPrintUpload } from "@/app/actions/print";
 import { usePendingModel } from "@/components/print/pending-file";
 import { usePayment } from "@/components/pay/use-payment";
 import { Field } from "@/components/ui/field";
@@ -51,7 +51,7 @@ export function Quoter({ materials, cfg, user }: { materials: Mat[]; cfg: Cfg; u
     setParseError(null);
     setStats(null);
     setReview(null);
-    if (f.size > MAX_UPLOAD_BYTES) return setParseError("That file is over 60 MB. Email it to us and we'll quote it by hand.");
+    if (f.size > MAX_UPLOAD_BYTES) return setParseError("That file is over 50 MB. Email it to us and we'll quote it by hand.");
     setFile(f);
     setParsing(true);
     try {
@@ -100,7 +100,25 @@ export function Quoter({ materials, cfg, user }: { materials: Mat[]; cfg: Cfg; u
     if (!file || !quote) return;
     setSaving(true);
     const fd = new FormData();
-    fd.set("file", file);
+    // live site: upload straight to storage first, then send only its key
+    const up = await startPrintUpload(file.name, file.size);
+    if (!up.ok) {
+      setSaving(false);
+      toast.bad(up.error);
+      return;
+    }
+    if (up.url && up.key) {
+      const put = await fetch(up.url, { method: "PUT", headers: { "Content-Type": "application/octet-stream" }, body: file }).catch(() => null);
+      if (!put?.ok) {
+        setSaving(false);
+        toast.bad("Upload failed. Check your connection and try again.");
+        return;
+      }
+      fd.set("storedKey", up.key);
+      fd.set("fileName", file.name);
+    } else {
+      fd.set("file", file);
+    }
     Object.entries({ material: matCode, color: activeColor, infill, quality, quantity: qty, units, ...form }).forEach(([k, v]) => fd.set(k, String(v)));
     const res = await createPrintJob(fd);
     setSaving(false);
@@ -145,7 +163,7 @@ export function Quoter({ materials, cfg, user }: { materials: Mat[]; cfg: Cfg; u
             <div className="relative flex h-full flex-col items-center justify-center gap-4 p-8 text-center">
               <FileArrowUp size={44} weight="light" className="text-volt-hi" />
               <span className="display text-2xl">{parsing ? "Reading your model" : over ? "Release to load" : "Drop an STL or OBJ"}</span>
-              <span className="text-sm text-fg-2">or click to choose. Up to 60 MB. Files stay private.</span>
+              <span className="text-sm text-fg-2">or click to choose. Up to 50 MB. Files stay private.</span>
             </div>
           )}
           <input id="model" type="file" accept=".stl,.obj" className="sr-only" onChange={(e) => load(e.target.files?.[0])} disabled={!!stats} />

@@ -45,7 +45,7 @@ export default async function PrintPage() {
               <SectionLabel n="01" dark>Your quote</SectionLabel>
               <h2 className="display-wide mt-4 text-[2.4rem] md:text-[3.6rem]">Upload, tune, pay.</h2>
             </div>
-            <p className="max-w-[40ch] text-white/60">STL or OBJ up to 60 MB. The price is final for parts that fit our {p.bed.x} mm bed.</p>
+            <p className="max-w-[40ch] text-white/60">STL or OBJ up to 50 MB. The price is final for parts that fit our {p.bed.x} mm bed.</p>
           </div>
           <Quoter
             materials={materials.map((m) => ({ code: m.code, name: m.name, description: m.description, density: m.density, pricePerG: m.pricePerG, colors: parseJSON<string[]>(m.colors, []) }))}

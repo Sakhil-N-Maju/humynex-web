@@ -8,7 +8,7 @@ export default async function AdminCustomers({ searchParams }: { searchParams: P
   const sp = await searchParams;
   const q = sp.q?.trim();
   const users = await db.user.findMany({
-    where: { role: "CUSTOMER", ...(q ? { OR: [{ name: { contains: q } }, { email: { contains: q } }] } : {}) },
+    where: { role: "CUSTOMER", ...(q ? { OR: [{ name: { contains: q, mode: "insensitive" } }, { email: { contains: q, mode: "insensitive" } }] } : {}) },
     orderBy: { createdAt: "desc" },
     include: { orders: { where: { status: { notIn: ["PENDING_PAYMENT", "CANCELLED"] } }, select: { total: true } } },
     take: 200,

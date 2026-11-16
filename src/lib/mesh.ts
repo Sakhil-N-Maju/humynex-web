@@ -101,4 +101,4 @@ export function analyzeMesh(fileName: string, buf: ArrayBuffer): MeshStats {
   return parseBinarySTL(buf);
 }
 
-export const MAX_UPLOAD_BYTES = 60 * 1024 * 1024; // 60 MB
+export const MAX_UPLOAD_BYTES = 50 * 1024 * 1024; // 50 MB

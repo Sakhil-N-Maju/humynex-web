@@ -8,7 +8,7 @@ export default async function AdminProducts({ searchParams }: { searchParams: Pr
   const sp = await searchParams;
   const q = sp.q?.trim();
   const products = await db.product.findMany({
-    where: q ? { OR: [{ name: { contains: q } }, { sku: { contains: q } }, { category: { contains: q } }] } : undefined,
+    where: q ? { OR: [{ name: { contains: q, mode: "insensitive" } }, { sku: { contains: q, mode: "insensitive" } }, { category: { contains: q, mode: "insensitive" } }] } : undefined,
     orderBy: [{ active: "desc" }, { category: "asc" }, { name: "asc" }],
   });
   return (

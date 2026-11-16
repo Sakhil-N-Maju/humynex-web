@@ -4,14 +4,14 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
-    "build:demo": "node scripts/build-demo.mjs",
+    "build": "prisma migrate deploy && next build",
     "start": "next start",
     "lint": "eslint",
-    "db:push": "prisma db push",
+    "db:migrate": "prisma migrate deploy",
     "db:seed": "node --env-file=.env --import tsx prisma/seed.ts",
-    "db:setup": "prisma db push && npm run db:seed",
+    "db:setup": "prisma migrate deploy && npm run db:seed",
     "db:studio": "prisma studio",
+    "storage:setup": "node --env-file=.env scripts/setup-storage.mjs",
     "postinstall": "prisma generate",
     "typecheck": "tsc --noEmit"
   },

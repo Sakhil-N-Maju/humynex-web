@@ -172,7 +172,7 @@ export function ImageInput({ current, label = "Image" }: { current?: string | nu
             accept="image/jpeg,image/png,image/webp,image/avif"
             className="block text-sm text-fg-2 file:mr-3 file:cursor-pointer file:rounded-full file:border-0 file:bg-[#050816] file:px-4 file:py-2 file:text-sm file:font-medium file:text-white hover:file:bg-[#1E90FF]"
           />
-          <p className="text-xs text-fg-3">JPG, PNG, WebP or AVIF, under 8 MB. 1600 px wide or more looks best.</p>
+          <p className="text-xs text-fg-3">JPG, PNG, WebP or AVIF, under 4 MB. About 1600 px wide looks best.</p>
           {current && <Check name="removeImage" label="Remove current image" />}
         </div>
       </div>

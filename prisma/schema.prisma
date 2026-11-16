@@ -1,15 +1,17 @@
-// Humynex Robotics data model.
-// Local dev uses SQLite. For production on Vercel, switch `provider` to "postgresql"
-// and point DATABASE_URL at a hosted Postgres (Neon, Supabase, Vercel Postgres).
-// All money is stored as integer paise (₹1 = 100) to avoid float rounding.
+// Humynex Robotics data model, on Postgres (Supabase in production, `prisma dev`
+// locally). All money is stored as integer paise (₹1 = 100) to avoid float rounding.
+//
+// DATABASE_URL: the app's connection (on Supabase, the pooled "transaction" URL, port 6543)
+// DIRECT_URL:   used only for migrations (on Supabase, the direct or "session" URL, port 5432)
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {

@@ -5,6 +5,7 @@ const MESSAGES: Record<string, string> = {
   expired: "That sign-in took too long or was opened in another tab. Please try again.",
   failed: "We couldn't verify your Google account. Please try again.",
   off: "Google sign-in isn't switched on yet.",
+  setup: "Sign-in isn't fully set up on this site yet. Please try again later.",
 };
 
 /** Message from a failed Google attempt, shown above the form. */

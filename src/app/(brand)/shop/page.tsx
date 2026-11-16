@@ -31,7 +31,7 @@ export default async function ShopPage({ searchParams }: { searchParams: Promise
   const where: Prisma.ProductWhereInput = {
     active: true,
     ...(category ? { category } : {}),
-    ...(q ? { OR: [{ name: { contains: q } }, { summary: { contains: q } }, { sku: { contains: q } }] } : {}),
+    ...(q ? { OR: [{ name: { contains: q, mode: "insensitive" } }, { summary: { contains: q, mode: "insensitive" } }, { sku: { contains: q, mode: "insensitive" } }] } : {}),
   };
   const [products, cats] = await Promise.all([
     db.product.findMany({ where, orderBy: SORTS[sort].orderBy }),

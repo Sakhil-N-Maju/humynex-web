@@ -23,8 +23,10 @@ export function SiteFooter({ socials, phone, email, address }: { socials: Social
     : [
         { label: "My account", href: "/account" },
         { label: "Checkout", href: "/checkout" },
-        { label: "Privacy", href: "/privacy" },
         { label: "Terms", href: "/terms" },
+        { label: "Privacy", href: "/privacy" },
+        { label: "Refunds", href: "/refund-policy" },
+        { label: "Shipping", href: "/shipping-policy" },
       ];
 
   const head = "mb-4 font-mono text-[0.72rem] uppercase tracking-[0.08em] text-[#050816]/50";
@@ -77,8 +79,10 @@ export function SiteFooter({ socials, phone, email, address }: { socials: Social
         <a href={`tel:${phone.replace(/\s/g, "")}`} className="hover:text-[#1E90FF]">{phone}</a>
         <a href={`mailto:${email}`} className="hover:text-[#1E90FF]">{email}</a>
         <span className="md:ml-auto">© {new Date().getFullYear()} Humynex Robotics</span>
-        <Link href="/privacy" className="hover:text-[#1E90FF]">Privacy</Link>
         <Link href="/terms" className="hover:text-[#1E90FF]">Terms</Link>
+        <Link href="/privacy" className="hover:text-[#1E90FF]">Privacy</Link>
+        <Link href="/refund-policy" className="hover:text-[#1E90FF]">Refunds</Link>
+        <Link href="/shipping-policy" className="hover:text-[#1E90FF]">Shipping</Link>
       </div>
 
       {/* The brand, edge to edge, cropped at the bottom like a stamp */}

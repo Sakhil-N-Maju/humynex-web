@@ -12,6 +12,11 @@ export function googleConfigured() {
   return !!(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
 }
 
+/** Sessions are signed with AUTH_SECRET; without it a sign-in can't be completed. */
+export function sessionsConfigured() {
+  return (process.env.AUTH_SECRET ?? "").length >= 32;
+}
+
 export function googleAuthUrl({ redirectUri, state, nonce }: { redirectUri: string; state: string; nonce: string }) {
   const u = new URL("https://accounts.google.com/o/oauth2/v2/auth");
   u.search = new URLSearchParams({
@@ -42,7 +47,11 @@ export async function googleProfileFromCode({ code, redirectUri, nonce }: { code
     }),
     cache: "no-store",
   });
-  if (!res.ok) throw new Error(`Google token exchange failed (${res.status})`);
+  if (!res.ok) {
+    // Google's error code and description only, never the secret or code
+    const body = (await res.json().catch(() => ({}))) as { error?: string; error_description?: string };
+    throw new Error(`Google token exchange failed (${res.status}): ${body.error ?? "?"} ${body.error_description ?? ""}`.trim());
+  }
   const { id_token } = (await res.json()) as { id_token?: string };
   if (!id_token) throw new Error("Google returned no ID token");
 

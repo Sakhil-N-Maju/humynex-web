@@ -1,7 +1,5 @@
 "use server";
 
-import { mkdir, writeFile } from "node:fs/promises";
-import path from "node:path";
 import { randomBytes } from "node:crypto";
 import { z } from "zod";
 import { db } from "@/lib/db";
@@ -11,8 +9,24 @@ import { analyzeMesh, MAX_UPLOAD_BYTES, MeshError } from "@/lib/mesh";
 import { estimatePrint } from "@/lib/print-pricing";
 import { evaluateCoupon } from "@/lib/coupons";
 import { refNumber } from "@/lib/ids";
+import { getObject, putObject, signedUploadUrl } from "@/lib/storage";
 
-const STORAGE = path.join(process.cwd(), "storage", "prints");
+// keys we hand out for direct uploads; anything else is rejected
+const KEY_RE = /^incoming\/\d{13}-[a-f0-9]{12}\.(stl|obj)$/;
+
+/**
+ * Step 1 for big files on the live site: hand the browser a one-time link to
+ * upload the model straight to private storage (the site itself only accepts
+ * small requests). Returns nulls locally, where the file is posted directly.
+ */
+export async function startPrintUpload(fileName: string, size: number): Promise<{ ok: true; key: string | null; url: string | null } | { ok: false; error: string }> {
+  const ext = fileName.toLowerCase().split(".").pop();
+  if (ext !== "stl" && ext !== "obj") return { ok: false, error: "Upload an .stl or .obj file." };
+  if (!(size > 0) || size > MAX_UPLOAD_BYTES) return { ok: false, error: "That file is over 50 MB. Email it to us and we'll quote it by hand." };
+  const key = `incoming/${Date.now()}-${randomBytes(6).toString("hex")}.${ext}`;
+  const url = await signedUploadUrl("prints", key);
+  return url ? { ok: true, key, url } : { ok: true, key: null, url: null };
+}
 
 const schema = z.object({
   material: z.string().min(1),
@@ -37,22 +51,37 @@ export type PrintJobResult =
  * the customer pays never depends on numbers sent from the browser.
  */
 export async function createPrintJob(form: FormData): Promise<PrintJobResult> {
+  // The model arrives either inside the form (local) or already in storage (live site).
   const file = form.get("file");
-  if (!(file instanceof File) || file.size === 0) return { ok: false, error: "Attach your STL or OBJ file." };
-  if (file.size > MAX_UPLOAD_BYTES) return { ok: false, error: "That file is over 60 MB. Email it to us and we'll quote it by hand." };
-  const ext = file.name.toLowerCase().split(".").pop();
+  const storedKey = String(form.get("storedKey") ?? "");
+  const fileName = file instanceof File ? file.name : String(form.get("fileName") ?? "");
+  let buf: ArrayBuffer;
+  let key: string;
+  if (storedKey) {
+    if (!KEY_RE.test(storedKey)) return { ok: false, error: "Upload your file again." };
+    const data = await getObject("prints", storedKey);
+    if (!data) return { ok: false, error: "We didn't receive your file. Upload it again." };
+    if (data.byteLength > MAX_UPLOAD_BYTES) return { ok: false, error: "That file is over 50 MB. Email it to us and we'll quote it by hand." };
+    buf = data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength) as ArrayBuffer;
+    key = storedKey;
+  } else {
+    if (!(file instanceof File) || file.size === 0) return { ok: false, error: "Attach your STL or OBJ file." };
+    if (file.size > MAX_UPLOAD_BYTES) return { ok: false, error: "That file is over 50 MB. Email it to us and we'll quote it by hand." };
+    buf = await file.arrayBuffer();
+    key = "";
+  }
+  const ext = fileName.toLowerCase().split(".").pop();
   if (ext !== "stl" && ext !== "obj") return { ok: false, error: "Upload an .stl or .obj file." };
 
-  const parsed = schema.safeParse(Object.fromEntries([...form.entries()].filter(([k]) => k !== "file")));
+  const parsed = schema.safeParse(Object.fromEntries([...form.entries()].filter(([k]) => !["file", "storedKey", "fileName"].includes(k))));
   if (!parsed.success) {
     return { ok: false, fieldErrors: Object.fromEntries(parsed.error.issues.map((i) => [String(i.path[0]), i.message])) };
   }
   const d = parsed.data;
 
-  const buf = await file.arrayBuffer();
   let stats;
   try {
-    stats = analyzeMesh(file.name, buf);
+    stats = analyzeMesh(fileName, buf);
   } catch (e) {
     return { ok: false, error: e instanceof MeshError ? e.message : "We couldn't read that model." };
   }
@@ -85,18 +114,16 @@ export async function createPrintJob(form: FormData): Promise<PrintJobResult> {
   const tooSmall = Math.max(size.x, size.y, size.z) < 2;
   const needsReview = !q.fitsBed || tooSmall;
 
-  await mkdir(STORAGE, { recursive: true });
-  const stored = `${Date.now()}-${randomBytes(6).toString("hex")}.${ext}`;
-  await writeFile(path.join(STORAGE, stored), Buffer.from(buf));
+  const stored = key || (await putObject("prints", `${Date.now()}-${randomBytes(6).toString("hex")}.${ext}`, buf, "application/octet-stream"));
 
   const user = await getUser();
   const job = await db.printJob.create({
     data: {
       number: refNumber("PRT"),
       userId: user?.id ?? null,
-      fileName: file.name.slice(0, 180),
+      fileName: fileName.slice(0, 180),
       filePath: stored,
-      fileSize: file.size,
+      fileSize: buf.byteLength,
       units: d.units,
       volumeCm3: Math.round((stats.volume * scale ** 3) / 10) / 100,
       sizeX: Math.round(size.x * 10) / 10,

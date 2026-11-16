@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { randomBytes } from "node:crypto";
-import { googleAuthUrl, googleConfigured, GOOGLE_STATE_COOKIE } from "@/lib/google";
+import { googleAuthUrl, googleConfigured, sessionsConfigured, GOOGLE_STATE_COOKIE } from "@/lib/google";
 
 export const dynamic = "force-dynamic";
 
@@ -8,6 +8,11 @@ export const dynamic = "force-dynamic";
 export function GET(req: NextRequest) {
   if (!googleConfigured()) {
     return NextResponse.redirect(new URL("/login?google=off", req.nextUrl.origin));
+  }
+  // check before sending anyone to Google, so they don't pick an account for nothing
+  if (!sessionsConfigured()) {
+    console.error("[google sign-in] AUTH_SECRET is missing or shorter than 32 characters");
+    return NextResponse.redirect(new URL("/login?google=setup", req.nextUrl.origin));
   }
   const raw = req.nextUrl.searchParams.get("next") ?? "";
   const next = raw.startsWith("/") && !raw.startsWith("//") ? raw : "";

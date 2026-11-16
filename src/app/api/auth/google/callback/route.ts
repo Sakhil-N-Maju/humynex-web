@@ -36,7 +36,8 @@ export async function GET(req: NextRequest) {
   let profile: { email: string; name: string };
   try {
     profile = await googleProfileFromCode({ code, redirectUri: `${origin}/api/auth/google/callback`, nonce: saved.nonce });
-  } catch {
+  } catch (e) {
+    console.error("[google sign-in]", e instanceof Error ? e.message : e);
     return fail("failed");
   }
 
@@ -60,9 +61,15 @@ export async function GET(req: NextRequest) {
   } catch {
     userId = null;
   }
-  await createSession(userId ?? "", userId ? undefined : profile);
+  try {
+    await createSession(userId ?? "", userId ? undefined : profile);
+  } catch (e) {
+    // almost always a missing or short AUTH_SECRET on the server
+    console.error("[google sign-in] session", e instanceof Error ? e.message : e);
+    return fail("setup");
+  }
 
-  const admin = await isAdminEmail(profile.email);
+  const admin = await isAdminEmail(profile.email).catch(() => false);
   const dest = admin ? (saved.next.startsWith("/admin") ? saved.next : "/admin") : saved.next && !saved.next.startsWith("/admin") ? saved.next : "/";
   const res = NextResponse.redirect(new URL(dest, origin));
   res.cookies.delete(GOOGLE_STATE_COOKIE);
