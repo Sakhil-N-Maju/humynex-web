@@ -42,19 +42,20 @@ export function usePayment() {
     [router],
   );
 
+  /** Opens the payment window. Resolves true once it's open, false if it couldn't start. */
   const pay = useCallback(
-    async (kind: PayKind, refId: string) => {
+    async (kind: PayKind, refId: string): Promise<boolean> => {
       setBusy(true);
       const res = await startPayment(kind, refId);
       if (!res.ok) {
         toast.bad(res.error);
         setBusy(false);
-        return;
+        return false;
       }
       const intent = res.data;
       if (intent.provider === "test") {
         setTestIntent(intent);
-        return;
+        return true;
       }
       try {
         const Razorpay = await loadRazorpay();
@@ -85,9 +86,11 @@ export function usePayment() {
           setBusy(false);
         });
         rzp.open();
+        return true;
       } catch (e) {
         toast.bad(e instanceof Error ? e.message : "Couldn't open the payment window.");
         setBusy(false);
+        return false;
       }
     },
     [done],

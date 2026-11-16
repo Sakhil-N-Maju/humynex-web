@@ -16,11 +16,15 @@ export type CartLine = {
 
 type CartState = {
   lines: CartLine[];
+  /** account this cart belongs to (null: a signed-out visitor's cart) */
+  owner: string | null;
   open: boolean;
   add: (line: Omit<CartLine, "qty">, qty?: number) => void;
   setQty: (productId: string, qty: number) => void;
   remove: (productId: string) => void;
   clear: () => void;
+  /** replace everything with the account's saved cart */
+  load: (lines: CartLine[], owner: string | null) => void;
   setOpen: (open: boolean) => void;
 };
 
@@ -28,6 +32,7 @@ export const useCart = create<CartState>()(
   persist(
     (set) => ({
       lines: [],
+      owner: null,
       open: false,
       add: (line, qty = 1) =>
         set((s) => {
@@ -50,9 +55,10 @@ export const useCart = create<CartState>()(
         })),
       remove: (productId) => set((s) => ({ lines: s.lines.filter((l) => l.productId !== productId) })),
       clear: () => set({ lines: [] }),
+      load: (lines, owner) => set({ lines, owner }),
       setOpen: (open) => set({ open }),
     }),
-    { name: "hmx-cart", partialize: (s) => ({ lines: s.lines }) },
+    { name: "hmx-cart", partialize: (s) => ({ lines: s.lines, owner: s.owner }) },
   ),
 );
 

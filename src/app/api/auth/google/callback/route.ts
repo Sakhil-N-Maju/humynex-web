@@ -1,4 +1,5 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { db } from "@/lib/db";
 import { createSession, findOrCreateGoogleUser } from "@/lib/auth";
 import { isAdminEmail } from "@/lib/admin-access";
 import { googleProfileFromCode, GOOGLE_STATE_COOKIE } from "@/lib/google";
@@ -47,6 +48,16 @@ export async function GET(req: NextRequest) {
     console.error("[google sign-in] account", e instanceof Error ? e.message : e);
     return fail("failed");
   }
+  // Google has verified this email, so orders, rentals and prints placed with it
+  // while signed out are theirs: show them in the account. (Not done for
+  // password sign-ups, whose emails aren't verified.)
+  const email = profile.email.toLowerCase();
+  await Promise.all([
+    db.order.updateMany({ where: { userId: null, email }, data: { userId } }),
+    db.rentalBooking.updateMany({ where: { userId: null, email }, data: { userId } }),
+    db.printJob.updateMany({ where: { userId: null, email }, data: { userId } }),
+  ]).catch((e) => console.error("[google sign-in] link orders", e instanceof Error ? e.message : e));
+
   try {
     await createSession(userId);
   } catch (e) {

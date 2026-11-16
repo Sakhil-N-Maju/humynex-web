@@ -57,7 +57,7 @@ export function ServiceStack({ services }: { services: Service[] }) {
                   href={s.href}
                   className={clsx(
                     "mt-8 inline-flex h-12 w-fit items-center gap-2 rounded-full px-6 font-semibold transition-colors md:mt-auto",
-                    "bg-[#1E90FF] text-[#050816] hover:bg-[#67D4FF]",
+                    "bg-[#1E90FF] text-white hover:bg-[#1A7FE6]",
                   )}
                 >
                   {s.cta} <ArrowUpRight size={16} weight="bold" />

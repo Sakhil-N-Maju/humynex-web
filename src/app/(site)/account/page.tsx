@@ -13,6 +13,8 @@ export const metadata: Metadata = { title: "My account", robots: { index: false 
 
 const fmtDate = (d: Date) => d.toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" });
 const STATUS: Record<string, string> = {
+  ENQUIRY: "Awaiting approval",
+  APPROVED: "Approved, pay to confirm",
   PENDING_PAYMENT: "Awaiting payment",
   PAID: "Paid",
   PACKED: "Packed",
@@ -100,15 +102,18 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
         <div className="space-y-14">
           <Block title="Orders" empty="No orders yet." cta={{ href: "/shop", label: "Shop parts" }} count={orders.length}>
             {orders.map((o) => (
-              <Row key={o.id} title={o.number} meta={`${fmtDate(o.createdAt)} / ${o.items.reduce((n, i) => n + i.qty, 0)} items`} amount={o.total} status={o.status}>
+              <Row key={o.id} title={o.number} href={`/account/orders/${o.id}`} meta={`${fmtDate(o.createdAt)} / ${o.items.reduce((n, i) => n + i.qty, 0)} items`} amount={o.total} status={o.status}>
                 {o.status === "PENDING_PAYMENT" && <PayNow kind="ORDER" id={o.id} />}
+                {o.trackingUrl && o.status !== "CANCELLED" && (
+                  <a href={o.trackingUrl} target="_blank" rel="noopener noreferrer" className="btn btn-ghost btn-sm">Track</a>
+                )}
               </Row>
             ))}
           </Block>
           <Block title="Rental bookings" empty="No rentals yet." cta={{ href: "/rentals", label: "See rentals" }} count={bookings.length}>
             {bookings.map((b) => (
               <Row key={b.id} title={`${b.item.name}`} meta={`${b.number} / ${fmtDate(b.startDate)}, ${b.days} days`} amount={b.total} status={b.status}>
-                {b.status === "PENDING_PAYMENT" && <PayNow kind="RENTAL" id={b.id} />}
+                {(b.status === "PENDING_PAYMENT" || b.status === "APPROVED") && <PayNow kind="RENTAL" id={b.id} />}
               </Row>
             ))}
           </Block>
@@ -155,12 +160,21 @@ function Block({ title, empty, cta, count, children }: { title: string; empty: s
   );
 }
 
-function Row({ title, meta, amount, status, children }: { title: string; meta: string; amount: number; status: string; children?: React.ReactNode }) {
-  const tone = status === "CANCELLED" ? "text-bad" : status === "PENDING_PAYMENT" || status === "QUOTED" ? "text-warn" : "text-ok";
+function Row({ title, href, meta, amount, status, children }: { title: string; href?: string; meta: string; amount: number; status: string; children?: React.ReactNode }) {
+  const tone =
+    status === "CANCELLED"
+      ? "text-bad"
+      : ["PENDING_PAYMENT", "QUOTED", "ENQUIRY"].includes(status)
+        ? "text-warn"
+        : status === "APPROVED"
+          ? "text-volt-hi"
+          : "text-ok";
   return (
     <li className="flex flex-wrap items-center gap-x-6 gap-y-2 py-4">
       <div className="min-w-0 flex-1">
-        <p className="truncate font-medium">{title}</p>
+        <p className="truncate font-medium">
+          {href ? <Link href={href} className="hover:text-volt-hi hover:underline">{title}</Link> : title}
+        </p>
         <p className="text-sm text-fg-3">{meta}</p>
       </div>
       <span className={`text-sm ${tone}`}>{STATUS[status] ?? status}</span>

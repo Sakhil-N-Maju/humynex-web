@@ -80,7 +80,7 @@ export function LeadForm() {
         <input id="lf-hp" name="company_website" tabIndex={-1} autoComplete="off" />
       </div>
       <div className="flex flex-wrap items-center gap-4 sm:col-span-2">
-        <button disabled={pending} className="inline-flex h-12 items-center rounded-full bg-[#1E90FF] px-7 font-semibold text-[#050816] hover:bg-[#67D4FF] transition-transform active:scale-[0.98] disabled:opacity-60">
+        <button disabled={pending} className="inline-flex h-12 items-center rounded-full bg-[#1E90FF] px-7 font-semibold text-white hover:bg-[#1A7FE6] transition-transform active:scale-[0.98] disabled:opacity-60">
           {pending ? "Sending" : "Request a quote"}
         </button>
         <span className="text-sm text-white/55">We reply within one working day.</span>

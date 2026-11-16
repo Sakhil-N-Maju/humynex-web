@@ -37,7 +37,9 @@ async function loadPayable(kind: PayKind, refId: string) {
   if (kind === "RENTAL") {
     const b = await db.rentalBooking.findUnique({ where: { id: refId }, include: { item: true } });
     if (!b) return null;
-    return { status: b.status, amount: b.total, number: b.number, name: b.name, email: b.email, phone: b.phone, label: `${b.item.name} rental ${b.number}` };
+    // an approved enquiry is payable just like an instant booking
+    const status = b.status === "APPROVED" ? "PENDING_PAYMENT" : b.status;
+    return { status, amount: b.total, number: b.number, name: b.name, email: b.email, phone: b.phone, label: `${b.item.name} rental ${b.number}` };
   }
   const p = await db.printJob.findUnique({ where: { id: refId } });
   if (!p) return null;
@@ -138,12 +140,16 @@ export async function fulfilPayment(providerOrderId: string, providerPaymentId: 
         if (order.couponCode) {
           await tx.coupon.update({ where: { code: order.couponCode }, data: { usedCount: { increment: 1 } } }).catch(() => null);
         }
+        // bought: take these items out of the account's saved cart on every device
+        if (order.userId) {
+          await tx.cartItem.deleteMany({ where: { userId: order.userId, productId: { in: order.items.map((i) => i.productId) } } });
+        }
         const earned = await awardPurchase(tx, order.userId, order.total, "ORDER", order.id, `Order ${order.number}`);
         await tx.order.update({ where: { id: order.id }, data: { status: "PAID", pointsEarned: earned } });
       }
     } else if (pay.kind === "RENTAL") {
       const b = await tx.rentalBooking.findUniqueOrThrow({ where: { id: pay.refId }, include: { item: true } });
-      if (b.status === "PENDING_PAYMENT") {
+      if (b.status === "PENDING_PAYMENT" || b.status === "APPROVED") {
         if (b.couponCode) {
           await tx.coupon.update({ where: { code: b.couponCode }, data: { usedCount: { increment: 1 } } }).catch(() => null);
         }

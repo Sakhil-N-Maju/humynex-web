@@ -125,11 +125,12 @@
   }
   .btn:active { transform: translateY(1px) scale(0.99); }
   .btn:disabled { opacity: 0.45; pointer-events: none; }
+  /* blue buttons always carry white text; hover deepens the blue so it stays readable */
   .btn-primary {
     background: var(--color-volt);
-    color: var(--color-ink);
+    color: #fff;
   }
-  .btn-primary:hover { background: var(--color-volt-hi); }
+  .btn-primary:hover { background: #1a7fe6; }
   .btn-ghost {
     border: 1px solid rgb(255 255 255 / 0.22);
     color: var(--color-fg);
@@ -240,6 +241,14 @@ html.lenis, html.lenis body { height: auto; }
     background-image: linear-gradient(45deg, transparent 50%, rgb(5 8 22 / 0.6) 50%), linear-gradient(135deg, rgb(5 8 22 / 0.6) 50%, transparent 50%);
   }
   .admin-light ::selection { background: #1e90ff; color: #fff; }
+  /* the dark "surface" panel used on detail pages, made light on white sheets */
+  .admin-light .surface {
+    border-radius: 20px;
+    background: #f5f7fb;
+    border: 1px solid rgb(5 8 22 / 0.07);
+  }
+  .admin-light .divide-line > :not(:last-child),
+  .admin-light .border-line { border-color: rgb(5 8 22 / 0.08); }
 }
 
 /*
@@ -281,4 +290,17 @@ html.lenis, html.lenis body { height: auto; }
 @keyframes mono-reveal {
   from { filter: grayscale(1); }
   to { filter: grayscale(0); }
+}
+
+/* Swipe-to-pay in brand colours: light blue track, white handle and label.
+   The handle's arrow is dark by default on white; keep it brand blue. */
+.slide-commit--brand .slide-commit__text--plain {
+  color: #fff;
+  font-weight: 600;
+}
+.slide-commit--brand .slide-commit__capsule {
+  color: #1e90ff;
+}
+.slide-commit--brand[data-phase="done"] .slide-commit__capsule {
+  color: #fff;
 }

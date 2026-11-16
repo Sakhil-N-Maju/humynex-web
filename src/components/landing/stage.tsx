@@ -71,7 +71,7 @@ export function Stage({
           <div className="mt-10 flex flex-wrap items-center justify-center gap-3 md:mt-14">
             <a
               href="/contact"
-              className="inline-flex h-12 items-center rounded-full bg-[#1E90FF] px-6 font-semibold text-[#050816] transition-[transform,background-color] hover:bg-[#67D4FF] active:scale-[0.98]"
+              className="inline-flex h-12 items-center rounded-full bg-[#1E90FF] px-6 font-semibold text-white transition-[transform,background-color] hover:bg-[#1A7FE6] active:scale-[0.98]"
             >
               Request a quote
             </a>

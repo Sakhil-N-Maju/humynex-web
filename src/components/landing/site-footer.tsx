@@ -42,7 +42,7 @@ export function SiteFooter({ socials, phone, email, address }: { socials: Social
           <p className="mt-4 max-w-[36ch] text-[#050816]/65">Tell us what you need. We reply within one working day.</p>
           <Link
             href="/contact"
-            className="mt-8 inline-flex h-12 items-center gap-2 bg-[#1E90FF] px-6 font-mono text-sm font-semibold uppercase tracking-[0.06em] text-[#050816] transition-colors hover:bg-[#67D4FF]"
+            className="mt-8 inline-flex h-12 items-center gap-2 bg-[#1E90FF] px-6 font-mono text-sm font-semibold uppercase tracking-[0.06em] text-white transition-colors hover:bg-[#1A7FE6]"
           >
             Start a project <ArrowUpRight size={16} weight="bold" />
           </Link>

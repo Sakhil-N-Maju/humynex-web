@@ -18,7 +18,9 @@ export function daysInclusive(start: Date, end: Date) {
   return Math.round((end.getTime() - start.getTime()) / DAY_MS) + 1;
 }
 
-const HOLDING = ["PENDING_PAYMENT", "CONFIRMED", "ACTIVE"];
+// Enquiries don't hold dates (the team checks before approving); approved
+// bookings do, until paid or cancelled.
+const HOLDING = ["PENDING_PAYMENT", "APPROVED", "CONFIRMED", "ACTIVE"];
 // Unpaid holds expire so abandoned checkouts don't block dates forever.
 const HOLD_MINUTES = 30;
 

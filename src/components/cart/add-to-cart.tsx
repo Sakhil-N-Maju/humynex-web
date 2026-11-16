@@ -28,7 +28,7 @@ export function AddToCart({ product, compact = false }: { product: P; compact?: 
         }}
         disabled={out}
         aria-label={out ? `${product.name} is out of stock` : `Add ${product.name} to cart`}
-        className="grid size-11 shrink-0 place-items-center rounded-full bg-[#050816] text-white transition-colors hover:bg-[#1E90FF] hover:text-[#050816] disabled:opacity-35"
+        className="grid size-11 shrink-0 place-items-center rounded-full bg-[#050816] text-white transition-colors hover:bg-[#1E90FF] hover:text-white disabled:opacity-35"
       >
         {added ? <Check size={18} weight="bold" /> : <ShoppingBagOpen size={18} />}
       </button>
@@ -46,7 +46,7 @@ export function AddToCart({ product, compact = false }: { product: P; compact?: 
           <Plus size={16} />
         </button>
       </div>
-      <motion.button whileTap={{ scale: 0.97 }} onClick={go} disabled={out} className="inline-flex h-12 min-w-[180px] items-center justify-center gap-2 rounded-full bg-[#1E90FF] px-6 font-semibold text-[#050816] transition-colors hover:bg-[#67D4FF] disabled:opacity-45">
+      <motion.button whileTap={{ scale: 0.97 }} onClick={go} disabled={out} className="inline-flex h-12 min-w-[180px] items-center justify-center gap-2 rounded-full bg-[#1E90FF] px-6 font-semibold text-white transition-colors hover:bg-[#1A7FE6] disabled:opacity-45">
         {out ? "Out of stock" : added ? (<><Check size={18} weight="bold" /> Added</>) : "Add to cart"}
       </motion.button>
     </div>

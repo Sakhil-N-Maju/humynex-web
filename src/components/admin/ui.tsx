@@ -45,12 +45,27 @@ export function BackLink({ href, label }: { href: string; label: string }) {
 
 export function Flash({ sp }: { sp: Record<string, string | undefined> }) {
   const demo = !!sp.demo;
-  const bad = !!sp.invalid;
+  const error = sp.invalid
+    ? "That doesn't look like a valid email address."
+    : sp.badlink
+      ? "That isn't a valid web link. Paste the full tracking link, starting with https://"
+      : sp.badprice
+        ? "Check the rent: it must be at least ₹1, and the deposit can't be negative."
+        : sp.clash
+          ? "Those dates are no longer free: another approved booking uses the units. Offer the customer other dates, or decline."
+          : sp.notenquiry
+            ? "This booking has already been reviewed."
+            : null;
+  const bad = !!error;
   const msg = demo
     ? "This is the demo site, so changes aren't saved. Everything else works as it will on the live admin."
-    : bad
-      ? "That doesn't look like a valid email address."
-      : sp.saved
+    : error
+      ? error
+      : sp.approved
+        ? "Approved. The dates are held, and the customer can now pay from their account."
+        : sp.declined
+          ? "Declined. The enquiry is closed."
+          : sp.saved
         ? "Saved. The website is updated."
         : sp.deleted
           ? "Deleted."
@@ -73,6 +88,8 @@ export function Flash({ sp }: { sp: Record<string, string | undefined> }) {
 }
 
 const TONES: Record<string, string> = {
+  ENQUIRY: "text-warn bg-warn/10",
+  APPROVED: "text-[#1E90FF] bg-[#1E90FF]/10",
   PENDING_PAYMENT: "text-warn bg-warn/10",
   QUOTED: "text-warn bg-warn/10",
   CANCELLED: "text-bad bg-bad/10",
@@ -108,7 +125,9 @@ export function LiveTag({ live, liveLabel = "Live", hiddenLabel = "Hidden" }: { 
 export function Table({ head, children, empty }: { head: string[]; children: React.ReactNode; empty?: string }) {
   const hasRows = Array.isArray(children) ? children.length > 0 : !!children;
   return (
-    <div className="overflow-x-auto rounded-[24px] border border-line">
+    // relative: keeps absolutely-positioned bits inside (e.g. sr-only labels),
+    // otherwise they escape the scroll box and widen the whole page on phones
+    <div className="relative overflow-x-auto rounded-[24px] border border-line">
       <table className="w-full min-w-[640px] text-left text-sm">
         <thead className="bg-ink-2 font-mono text-[0.68rem] uppercase tracking-[0.1em] text-fg-3">
           <tr>{head.map((h) => <th key={h} className="px-5 py-3.5 font-medium">{h}</th>)}</tr>

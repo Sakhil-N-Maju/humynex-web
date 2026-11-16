@@ -136,7 +136,7 @@ export function RentalRow({ item, index }: { item: RentalRowData; index: number 
               <div className="mt-10 flex flex-wrap items-center gap-6">
                 <Link
                   href={`/rentals/${item.slug}`}
-                  className="group inline-flex h-12 items-center gap-2 rounded-full bg-[#1E90FF] px-6 font-semibold text-[#050816] transition-colors hover:bg-[#67D4FF]"
+                  className="group inline-flex h-12 items-center gap-2 rounded-full bg-[#1E90FF] px-6 font-semibold text-white transition-colors hover:bg-[#1A7FE6]"
                 >
                   View details
                   <ArrowUpRight size={16} weight="bold" className="transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />

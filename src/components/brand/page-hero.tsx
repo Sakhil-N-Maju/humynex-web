@@ -101,9 +101,9 @@ export function SectionLabel({ n, children, dark }: { n?: string; children: Reac
 }
 
 export const btnBlue =
-  "inline-flex h-12 items-center justify-center gap-2 rounded-full bg-[#1E90FF] px-6 text-[0.95rem] font-semibold text-[#050816] transition-colors hover:bg-[#67D4FF]";
+  "inline-flex h-12 items-center justify-center gap-2 rounded-full bg-[#1E90FF] px-6 text-[0.95rem] font-semibold text-white transition-colors hover:bg-[#1A7FE6]";
 export const btnNavy =
-  "inline-flex h-12 items-center justify-center gap-2 rounded-full bg-[#050816] px-6 text-[0.95rem] font-medium text-white transition-colors hover:bg-[#1E90FF] hover:text-[#050816]";
+  "inline-flex h-12 items-center justify-center gap-2 rounded-full bg-[#050816] px-6 text-[0.95rem] font-medium text-white transition-colors hover:bg-[#1E90FF] hover:text-white";
 export const btnOutlineDark =
   "inline-flex h-12 items-center justify-center gap-2 rounded-full border border-[#050816]/20 px-6 text-[0.95rem] font-medium text-[#050816] transition-colors hover:border-[#050816]";
 export const btnOutlineLight =

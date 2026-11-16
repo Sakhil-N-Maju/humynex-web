@@ -40,7 +40,7 @@ export default async function AdminAbout({ searchParams }: { searchParams: Promi
         <div className="grid gap-4 sm:grid-cols-2">
           {pillars.slice(0, 6).map((p, i) => (
             <div key={i} className="space-y-3 rounded-[18px] bg-ink-2 p-4">
-              <span className="grid size-8 place-items-center rounded-full bg-[#1E90FF] font-mono text-xs font-semibold text-[#050816]">
+              <span className="grid size-8 place-items-center rounded-full bg-[#1E90FF] font-mono text-xs font-semibold text-white">
                 {String(i + 1).padStart(2, "0")}
               </span>
               <F label="Title" name={`title${i}`}><input id={`title${i}`} name={`title${i}`} defaultValue={p.title} className="input" /></F>

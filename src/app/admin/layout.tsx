@@ -10,9 +10,10 @@ export const metadata: Metadata = { title: "Admin", robots: { index: false, foll
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   const user = await requireAdmin();
-  const [unread, review] = await Promise.all([
+  const [unread, review, enquiries] = await Promise.all([
     db.contactMessage.count({ where: { read: false } }),
     db.printJob.count({ where: { status: "QUOTED" } }),
+    db.rentalBooking.count({ where: { status: "ENQUIRY" } }),
   ]);
 
   const account = ADMIN_PREVIEW ? (
@@ -41,7 +42,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   return (
     <div className="min-h-[100dvh] bg-[#050816] text-white lg:grid lg:grid-cols-[264px_1fr]">
       <aside className="lg:sticky lg:top-0 lg:flex lg:h-[100dvh] lg:flex-col">
-        <AdminSidebar badges={{ "/admin/messages": unread, "/admin/prints": review }} account={account} />
+        <AdminSidebar badges={{ "/admin/messages": unread, "/admin/prints": review, "/admin/bookings": enquiries }} account={account} />
       </aside>
 
       <main className="min-w-0 p-2 pt-0 md:p-3 lg:pl-0">

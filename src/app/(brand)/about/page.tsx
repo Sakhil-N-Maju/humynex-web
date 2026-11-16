@@ -137,7 +137,7 @@ export default async function AboutPage() {
                 delay={i * 0.07}
                 className="flex flex-col items-center rounded-[28px] bg-[#0f1630] px-7 pb-12 pt-10 text-center transition-colors duration-500 hover:bg-[#141d3d]"
               >
-                <span className="grid size-12 place-items-center rounded-full bg-[#1E90FF] font-mono text-sm font-semibold text-[#050816]">
+                <span className="grid size-12 place-items-center rounded-full bg-[#1E90FF] font-mono text-sm font-semibold text-white">
                   {String(i + 1).padStart(2, "0")}
                 </span>
                 <h3 className="display mt-10 text-[1.4rem] md:text-[1.55rem]">{p.title}</h3>

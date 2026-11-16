@@ -147,7 +147,7 @@ export function TrustSection({
           <Drift progress={across} speed={-20} className="md:col-span-3 md:col-start-10 md:flex md:items-end md:justify-end md:pb-0">
             <Link
               href={cta.href}
-              className="group inline-flex h-14 items-center gap-3 rounded-full bg-[#1E90FF] pl-7 pr-2 text-lg font-semibold text-[#050816] transition-colors hover:bg-[#67D4FF]"
+              className="group inline-flex h-14 items-center gap-3 rounded-full bg-[#1E90FF] pl-7 pr-2 text-lg font-semibold text-white transition-colors hover:bg-[#1A7FE6]"
             >
               {cta.label}
               <span className="grid size-10 place-items-center rounded-full bg-[#050816] text-white transition-transform duration-300 group-hover:rotate-45">

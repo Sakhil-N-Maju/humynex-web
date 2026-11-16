@@ -66,9 +66,10 @@ export default async function AdminHome() {
         })}
       </div>
 
-      <div className="mt-10 grid gap-10 xl:grid-cols-2">
+      {/* minmax(0,1fr) and min-w-0: a long row must never widen the column past the screen */}
+      <div className="mt-10 grid grid-cols-[minmax(0,1fr)] gap-10 xl:grid-cols-2 [&>*]:min-w-0">
         <section>
-          <div className="flex items-baseline justify-between">
+          <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
             <h2 className="font-semibold">Rentals in the next 7 days</h2>
             <Link href="/admin/bookings" className="text-sm text-volt-hi hover:underline">All bookings</Link>
           </div>
@@ -76,9 +77,9 @@ export default async function AdminHome() {
             {upcoming.length === 0 && <li className="px-4 py-6 text-sm text-fg-3">No confirmed rentals this week.</li>}
             {upcoming.map((b) => (
               <li key={b.id} className="flex items-center justify-between gap-4 px-4 py-3 text-sm">
-                <span>
+                <span className="min-w-0">
                   <span className="block">{b.item.name}</span>
-                  <span className="text-xs text-fg-3">{b.name}, {b.venue}</span>
+                  <span className="block truncate text-xs text-fg-3">{b.name}, {b.venue}</span>
                 </span>
                 <span className="font-mono text-xs text-fg-2">{b.startDate.toLocaleDateString("en-IN", { day: "numeric", month: "short", timeZone: "UTC" })}</span>
               </li>
@@ -87,7 +88,7 @@ export default async function AdminHome() {
         </section>
 
         <section>
-          <div className="flex items-baseline justify-between">
+          <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
             <h2 className="font-semibold">Low stock</h2>
             <Link href="/admin/products" className="text-sm text-volt-hi hover:underline">All products</Link>
           </div>
@@ -95,8 +96,8 @@ export default async function AdminHome() {
             {lowStock.length === 0 && <li className="px-4 py-6 text-sm text-fg-3">Everything has more than 5 in stock.</li>}
             {lowStock.map((p) => (
               <li key={p.id}>
-                <Link href={`/admin/products/${p.id}`} className="flex items-center justify-between px-4 py-3 text-sm hover:bg-ink-2">
-                  <span>{p.name}</span>
+                <Link href={`/admin/products/${p.id}`} className="flex items-center justify-between gap-4 px-4 py-3 text-sm hover:bg-ink-2">
+                  <span className="min-w-0 truncate">{p.name}</span>
                   <span className={`font-mono ${p.stock <= 0 ? "text-bad" : "text-warn"}`}>{p.stock}</span>
                 </Link>
               </li>
@@ -105,7 +106,7 @@ export default async function AdminHome() {
         </section>
 
         <section className="xl:col-span-2">
-          <div className="flex items-baseline justify-between">
+          <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
             <h2 className="font-semibold">Latest orders</h2>
             <Link href="/admin/orders" className="text-sm text-volt-hi hover:underline">All orders</Link>
           </div>
@@ -113,10 +114,13 @@ export default async function AdminHome() {
             {recentOrders.length === 0 && <li className="px-4 py-6 text-sm text-fg-3">No orders yet.</li>}
             {recentOrders.map((o) => (
               <li key={o.id}>
-                <Link href={`/admin/orders/${o.id}`} className="grid grid-cols-[1fr_auto_auto] items-center gap-6 px-4 py-3 text-sm hover:bg-ink-2">
-                  <span><span className="font-mono">{o.number}</span> <span className="text-fg-3">{o.name}</span></span>
+                <Link href={`/admin/orders/${o.id}`} className="flex flex-wrap items-center gap-x-4 gap-y-2 px-4 py-3 text-sm hover:bg-ink-2">
+                  <span className="min-w-0 flex-1 basis-40">
+                    <span className="block font-mono">{o.number}</span>
+                    <span className="block truncate text-fg-3">{o.name}</span>
+                  </span>
                   <Status value={o.status} />
-                  <span className="w-24 text-right font-mono">{formatINR(o.total)}</span>
+                  <span className="ml-auto text-right font-mono">{formatINR(o.total)}</span>
                 </Link>
               </li>
             ))}

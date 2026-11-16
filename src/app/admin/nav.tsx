@@ -106,7 +106,7 @@ function NavList({ badges, className }: { badges: Record<string, number>; classN
                 <Icon size={18} weight={active ? "fill" : "regular"} className={active ? "text-[#1E90FF]" : ""} />
                 <span className="whitespace-nowrap">{label}</span>
                 {!!badges[href] && (
-                  <span className="ml-auto grid min-w-[20px] place-items-center rounded-full bg-[#1E90FF] px-1.5 font-mono text-[0.65rem] font-semibold text-[#050816]">
+                  <span className="ml-auto grid min-w-[20px] place-items-center rounded-full bg-[#1E90FF] px-1.5 font-mono text-[0.65rem] font-semibold text-white">
                     {badges[href]}
                   </span>
                 )}

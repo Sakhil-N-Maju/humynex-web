@@ -32,6 +32,7 @@ model User {
   createdAt    DateTime @default(now())
 
   ledger   PointsEntry[]
+  cart     CartItem[]
   orders   Order[]
   bookings RentalBooking[]
   prints   PrintJob[]
@@ -71,6 +72,19 @@ model Product {
   updatedAt   DateTime @updatedAt
 
   orderItems OrderItem[]
+  cartItems  CartItem[]
+}
+
+// A signed-in customer's cart, so it follows them across devices.
+model CartItem {
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  qty       Int
+  updatedAt DateTime @updatedAt
+
+  @@id([userId, productId])
 }
 
 model RentalItem {
@@ -116,7 +130,10 @@ model RentalBooking {
   discount    Int        @default(0)
   couponCode  String?
   total       Int
-  status      String     @default("PENDING_PAYMENT") // PENDING_PAYMENT | CONFIRMED | ACTIVE | RETURNED | CANCELLED
+  // ENQUIRY (sent, not yet reviewed) -> APPROVED (dates held, customer pays)
+  // -> CONFIRMED (paid) -> ACTIVE -> RETURNED; or CANCELLED.
+  // PENDING_PAYMENT: legacy instant booking awaiting payment.
+  status      String     @default("ENQUIRY")
   createdAt   DateTime   @default(now())
 
   @@index([itemId, startDate, endDate])
@@ -185,6 +202,7 @@ model Order {
   total          Int
   couponCode     String?
   pointsEarned   Int         @default(0)
+  trackingUrl    String?     // courier tracking link, shown to the customer
   status         String      @default("PENDING_PAYMENT") // PENDING_PAYMENT | PAID | PACKED | SHIPPED | DELIVERED | CANCELLED
   createdAt      DateTime    @default(now())
 

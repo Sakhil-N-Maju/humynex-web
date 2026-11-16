@@ -180,7 +180,7 @@ export function Dock({ left, right }: { left: DockLink[]; right: DockLink[] }) {
               <Bag size={18} />
               Cart
               {count > 0 && (
-                <span className="grid min-w-[18px] place-items-center rounded-full bg-[#1E90FF] px-1 font-mono text-[0.65rem] font-semibold text-[#050816]">
+                <span className="grid min-w-[18px] place-items-center rounded-full bg-[#1E90FF] px-1 font-mono text-[0.65rem] font-semibold text-white">
                   {count}
                 </span>
               )}

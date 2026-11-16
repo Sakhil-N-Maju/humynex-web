@@ -180,7 +180,7 @@ export function Quoter({ materials, cfg, user }: { materials: Mat[]; cfg: Cfg; u
             <div className="ml-auto flex items-center gap-3">
               <div className="flex overflow-hidden rounded-full border border-line-2" role="radiogroup" aria-label="File units">
                 {(["mm", "in"] as const).map((u) => (
-                  <button key={u} type="button" role="radio" aria-checked={units === u} onClick={() => setUnits(u)} className={clsx("px-3 py-1 font-mono text-xs", units === u ? "bg-volt text-ink" : "text-fg-2 hover:text-fg")}>
+                  <button key={u} type="button" role="radio" aria-checked={units === u} onClick={() => setUnits(u)} className={clsx("px-3 py-1 font-mono text-xs", units === u ? "bg-volt text-white" : "text-fg-2 hover:text-fg")}>
                     {u}
                   </button>
                 ))}

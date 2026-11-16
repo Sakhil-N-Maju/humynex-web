@@ -274,13 +274,64 @@ export async function setOrderStatus(fd: FormData) {
   done(`/admin/orders/${id}`);
 }
 
-const BOOKING_STATUSES = ["PENDING_PAYMENT", "CONFIRMED", "ACTIVE", "RETURNED", "CANCELLED"];
+/** Courier tracking link the customer sees on their order. Empty clears it. */
+export async function setOrderTracking(fd: FormData) {
+  await assertAdmin();
+  const id = str(fd, "id");
+  const raw = str(fd, "trackingUrl");
+  let trackingUrl: string | null = null;
+  if (raw) {
+    let u: URL;
+    try {
+      u = new URL(/^https?:\/\//i.test(raw) ? raw : `https://${raw}`);
+    } catch {
+      redirect(`/admin/orders/${id}?badlink=1`);
+    }
+    if (u.protocol !== "https:" && u.protocol !== "http:") redirect(`/admin/orders/${id}?badlink=1`);
+    trackingUrl = u.toString();
+  }
+  await db.order.update({ where: { id }, data: { trackingUrl } });
+  done(`/admin/orders/${id}`);
+}
+
+const BOOKING_STATUSES = ["ENQUIRY", "APPROVED", "PENDING_PAYMENT", "CONFIRMED", "ACTIVE", "RETURNED", "CANCELLED"];
 export async function setBookingStatus(fd: FormData) {
   await assertAdmin();
+  const id = str(fd, "id");
   const status = str(fd, "status");
   if (!BOOKING_STATUSES.includes(status)) throw new Error("Unknown status");
-  await db.rentalBooking.update({ where: { id: str(fd, "id") }, data: { status } });
-  done("/admin/bookings");
+  await db.rentalBooking.update({ where: { id }, data: { status } });
+  done(`/admin/bookings/${id}`);
+}
+
+/**
+ * Approve a rental enquiry, optionally at an adjusted price. Checks the dates
+ * are still free, then holds them; the customer can now pay from their account.
+ */
+export async function approveBooking(fd: FormData) {
+  await assertAdmin();
+  const id = str(fd, "id");
+  const b = await db.rentalBooking.findUniqueOrThrow({ where: { id }, include: { item: true } });
+  if (b.status !== "ENQUIRY") redirect(`/admin/bookings/${id}?notenquiry=1`);
+  const { unitsBooked } = await import("@/lib/rentals");
+  const used = await unitsBooked(b.itemId, b.startDate, b.endDate, b.id);
+  if (used + b.quantity > b.item.units) redirect(`/admin/bookings/${id}?clash=1`);
+  const rentTotal = str(fd, "rent") ? paise(fd, "rent") : b.rentTotal;
+  const deposit = str(fd, "deposit") ? paise(fd, "deposit") : b.deposit;
+  if (rentTotal < 100 || deposit < 0) redirect(`/admin/bookings/${id}?badprice=1`);
+  const discount = Math.min(b.discount, rentTotal);
+  await db.rentalBooking.update({
+    where: { id },
+    data: { status: "APPROVED", rentTotal, deposit, discount, total: rentTotal - discount + deposit },
+  });
+  done(`/admin/bookings/${id}`, "approved");
+}
+
+export async function declineBooking(fd: FormData) {
+  await assertAdmin();
+  const id = str(fd, "id");
+  await db.rentalBooking.update({ where: { id, status: { in: ["ENQUIRY", "APPROVED"] } }, data: { status: "CANCELLED" } });
+  done(`/admin/bookings/${id}`, "declined");
 }
 
 const PRINT_STATUSES = ["QUOTED", "PENDING_PAYMENT", "PAID", "PRINTING", "READY", "SHIPPED", "CANCELLED"];

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { CaretLeft, CaretRight, CheckCircle, PaperPlaneTilt } from "@phosphor-icons/react";
 import clsx from "clsx";
@@ -95,7 +96,7 @@ function Calendar({
                 isBlocked && !past && "line-through decoration-bad/70",
                 !disabled && !isStart && !isEnd && !inRange && "hover:bg-ink-4",
                 inRange && "bg-volt/15 text-fg",
-                (isStart || isEnd) && "bg-volt font-semibold text-ink",
+                (isStart || isEnd) && "bg-volt font-semibold text-white",
               )}
             >
               {Number(d.slice(8))}
@@ -120,7 +121,7 @@ export function BookingWidget({ item, blocked, user }: { item: Item; blocked: st
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [pending, startT] = useTransition();
   const [saving, setSaving] = useState(false);
-  const [sent, setSent] = useState(false);
+  const [sent, setSent] = useState<{ number: string; signedIn: boolean } | null>(null);
 
   const crossesBooked = (a: string, b: string) => {
     for (let t = utc(a).getTime(); t <= utc(b).getTime(); t += DAY) {
@@ -189,7 +190,7 @@ export function BookingWidget({ item, blocked, user }: { item: Item; blocked: st
       toast.bad(res.error ?? "Check the highlighted fields.");
       return;
     }
-    setSent(true);
+    setSent({ number: res.number, signedIn: res.signedIn });
   };
 
   return (
@@ -259,7 +260,18 @@ export function BookingWidget({ item, blocked, user }: { item: Item; blocked: st
         <div className="mt-6 rounded-[20px] border border-white/10 p-6" role="status">
           <CheckCircle size={36} weight="fill" className="text-[#1E90FF]" />
           <p className="display mt-4 text-2xl">Enquiry sent.</p>
-          <p className="mt-2 text-sm text-fg-2">Thanks{form.name ? `, ${form.name.split(" ")[0]}` : ""}. We&apos;ll call you within one working day to confirm your dates and plan the event.</p>
+          <p className="mt-1 font-mono text-xs text-fg-3">{sent.number}</p>
+          <p className="mt-3 text-sm text-fg-2">
+            Thanks{form.name ? `, ${form.name.split(" ")[0]}` : ""}. We&apos;ll call you within one working day to confirm your dates and plan the
+            event. Once we approve it, you can pay from your account.
+          </p>
+          {sent.signedIn ? (
+            <Link href="/account" className="mt-4 inline-block text-sm font-semibold text-[#67D4FF] hover:underline">See it in your account</Link>
+          ) : (
+            <p className="mt-4 text-sm text-fg-2">
+              <Link href="/login?next=/account" className="font-semibold text-[#67D4FF] hover:underline">Sign in with Google</Link> using {form.email || "the same email"} to track it and pay.
+            </p>
+          )}
         </div>
       )}
 
@@ -279,7 +291,7 @@ export function BookingWidget({ item, blocked, user }: { item: Item; blocked: st
           <Field label="Email" name="email" error={errors.email}><input id="email" value={form.email} onChange={set("email")} className="input" type="email" autoComplete="email" aria-invalid={!!errors.email} /></Field>
           <Field label="Event venue and city" name="venue" error={errors.venue}><input id="venue" value={form.venue} onChange={set("venue")} className="input" aria-invalid={!!errors.venue} /></Field>
           <Field label="Anything we should know? (optional)" name="notes"><textarea id="notes" rows={3} value={form.notes} onChange={set("notes")} className="input" /></Field>
-          <button className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-[#1E90FF] font-semibold text-[#050816] transition-colors hover:bg-[#67D4FF] disabled:opacity-45" disabled={saving || pending}>
+          <button className="inline-flex h-12 w-full items-center justify-center gap-2 rounded-full bg-[#1E90FF] font-semibold text-white transition-colors hover:bg-[#1A7FE6] disabled:opacity-45" disabled={saving || pending}>
             <PaperPlaneTilt size={16} weight="bold" /> {saving ? "Sending" : "Send enquiry"}
           </button>
           <p className="text-xs text-fg-3">No payment now. We&apos;ll call within one working day to confirm availability, timings and the final price.</p>
