@@ -19,6 +19,12 @@ model User {
   email        String   @unique
   name         String
   phone        String?
+  // saved delivery address, used to fill in checkout
+  addrLine1    String?
+  addrLine2    String?
+  addrCity     String?
+  addrState    String?
+  addrPostal   String?
   passwordHash String
   role         String   @default("CUSTOMER") // CUSTOMER | ADMIN
   points       Int      @default(0)          // spendable balance

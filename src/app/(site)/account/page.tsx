@@ -7,6 +7,7 @@ import { formatINR } from "@/lib/money";
 import { logout } from "@/app/actions/auth";
 import { WelcomeBurst } from "./welcome-burst";
 import { PayNow } from "./pay-now";
+import { ProfileCard } from "./profile-card";
 
 export const metadata: Metadata = { title: "My account", robots: { index: false } };
 
@@ -36,7 +37,11 @@ const REASON: Record<string, string> = {
 export default async function AccountPage({ searchParams }: { searchParams: Promise<{ welcome?: string }> }) {
   const user = await requireUser("/account");
   const { welcome } = await searchParams;
-  const [ledger, orders, bookings, prints] = await Promise.all([
+  const [details, ledger, orders, bookings, prints] = await Promise.all([
+    db.user.findUnique({
+      where: { id: user.id },
+      select: { addrLine1: true, addrLine2: true, addrCity: true, addrState: true, addrPostal: true },
+    }),
     db.pointsEntry.findMany({ where: { userId: user.id }, orderBy: { createdAt: "desc" }, take: 12 }),
     db.order.findMany({ where: { userId: user.id }, orderBy: { createdAt: "desc" }, include: { items: true }, take: 20 }),
     db.rentalBooking.findMany({ where: { userId: user.id }, orderBy: { createdAt: "desc" }, include: { item: true }, take: 20 }),
@@ -77,6 +82,19 @@ export default async function AccountPage({ searchParams }: { searchParams: Prom
           <p className="mt-3 text-sm text-fg-2">{current.perk}</p>
         </div>
       </section>
+
+      <ProfileCard
+        profile={{
+          name: user.name,
+          email: user.email,
+          phone: user.phone ?? "",
+          line1: details?.addrLine1 ?? "",
+          line2: details?.addrLine2 ?? "",
+          city: details?.addrCity ?? "",
+          state: details?.addrState ?? "",
+          postal: details?.addrPostal ?? "",
+        }}
+      />
 
       <div className="mt-14 grid gap-14 lg:grid-cols-[1.5fr_1fr]">
         <div className="space-y-14">

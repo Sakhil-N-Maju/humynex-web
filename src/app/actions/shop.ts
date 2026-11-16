@@ -31,6 +31,8 @@ export type CheckoutInput = {
   address: z.infer<typeof addressSchema>;
   coupon?: string;
   usePoints?: boolean;
+  /** signed-in buyers: store this phone and address on their account */
+  saveDetails?: boolean;
 };
 
 export type Totals = {
@@ -149,6 +151,17 @@ export async function createOrder(
     });
   } catch (e) {
     return { ok: false, error: publicMessage(e, "Couldn't place your order. Please try again, or contact us.", "checkout") };
+  }
+
+  // remember the buyer's phone and address; a failure here never blocks the order
+  if (r.user && input.saveDetails) {
+    const a = addr.data;
+    await db.user
+      .update({
+        where: { id: r.user.id },
+        data: { phone: a.phone, addrLine1: a.line1, addrLine2: a.line2 || null, addrCity: a.city, addrState: a.state, addrPostal: a.postal },
+      })
+      .catch((e) => console.error("[checkout] save details", e instanceof Error ? e.message : e));
   }
 
   return { ok: true, orderId: order.id };

@@ -11,21 +11,37 @@ import { toast } from "@/components/ui/toaster";
 import { createOrder, quoteCart, type Totals } from "@/app/actions/shop";
 import { formatINR } from "@/lib/money";
 import { useMounted } from "@/lib/use-client-state";
+import { STATES } from "@/lib/india";
 
 const omit = (o: Record<string, string>, k: string) => Object.fromEntries(Object.entries(o).filter(([key]) => key !== k));
 
-const STATES = [
-  "Kerala", "Tamil Nadu", "Karnataka", "Andhra Pradesh", "Telangana", "Maharashtra", "Goa", "Gujarat", "Delhi", "Uttar Pradesh",
-  "West Bengal", "Rajasthan", "Madhya Pradesh", "Punjab", "Haryana", "Odisha", "Bihar", "Assam", "Jharkhand", "Chhattisgarh",
-  "Uttarakhand", "Himachal Pradesh", "Jammu and Kashmir", "Puducherry", "Chandigarh", "Other",
-];
 
-type U = { name: string; email: string; phone: string; points: number } | null;
+type U = {
+  name: string;
+  email: string;
+  phone: string;
+  points: number;
+  line1: string;
+  line2: string;
+  city: string;
+  state: string;
+  postal: string;
+} | null;
 
 export function CheckoutClient({ user }: { user: U }) {
   const lines = useCart((s) => s.lines);
   const mounted = useMounted();
-  const [addr, setAddr] = useState({ name: user?.name ?? "", email: user?.email ?? "", phone: user?.phone ?? "", line1: "", line2: "", city: "", state: "Kerala", postal: "" });
+  const [addr, setAddr] = useState({
+    name: user?.name ?? "",
+    email: user?.email ?? "",
+    phone: user?.phone ?? "",
+    line1: user?.line1 ?? "",
+    line2: user?.line2 ?? "",
+    city: user?.city ?? "",
+    state: user?.state || "Kerala",
+    postal: user?.postal ?? "",
+  });
+  const [saveDetails, setSaveDetails] = useState(true);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [couponInput, setCouponInput] = useState("");
   const [coupon, setCoupon] = useState("");
@@ -66,7 +82,7 @@ export function CheckoutClient({ user }: { user: U }) {
 
   const place = async () => {
     setPlacing(true);
-    const res = await createOrder({ lines: lines.map((l) => ({ productId: l.productId, qty: l.qty })), address: addr, coupon, usePoints });
+    const res = await createOrder({ lines: lines.map((l) => ({ productId: l.productId, qty: l.qty })), address: addr, coupon, usePoints, saveDetails: !!user && saveDetails });
     if (!res.ok) {
       if (res.fieldErrors) {
         setErrors(res.fieldErrors);
@@ -113,6 +129,12 @@ export function CheckoutClient({ user }: { user: U }) {
             </select>
           </Field>
         </fieldset>
+        {user && (
+          <label className="flex cursor-pointer items-center gap-3 text-sm text-fg-2">
+            <input type="checkbox" checked={saveDetails} onChange={(e) => setSaveDetails(e.target.checked)} className="size-4 accent-[#1e90ff]" />
+            Save these details to my account for next time
+          </label>
+        )}
         <button type="submit" className="btn btn-primary w-full sm:w-auto" disabled={placing || busy || !totals || totals.unavailable.length > 0}>
           <Lock size={16} /> {placing || busy ? "Opening payment" : `Pay ${totals ? formatINR(totals.total) : ""}`}
         </button>
