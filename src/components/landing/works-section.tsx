@@ -17,13 +17,13 @@ function Card({ work, slot, className, ratio }: { work: Work; slot: number; clas
   const [w, h] = ratio === "tall" ? [900, 1200] : ratio === "square" ? [1000, 1000] : [900, 1100];
   return (
     <Link href={`/projects/${work.slug}`} className={clsx("group block", className)}>
-      <div className="relative overflow-hidden bg-white/5" style={{ aspectRatio: `${w} / ${h}` }}>
+      <div className="relative overflow-clip bg-white/5" style={{ aspectRatio: `${w} / ${h}` }}>
         <Image
           src={work.cover ?? placeholder(slot)}
           alt={work.title}
           fill
           sizes="(min-width: 768px) 30vw, 90vw"
-          className="object-cover grayscale transition duration-700 group-hover:scale-[1.03] group-hover:grayscale-0"
+          className="object-cover mono group-hover:scale-[1.03]"
         />
       </div>
       <p className="mt-3 font-mono text-[0.72rem] uppercase tracking-[0.06em] text-white/75 transition-colors group-hover:text-[#67D4FF]">
@@ -69,7 +69,7 @@ export function WorksSection({ works }: { works: Work[] }) {
   return (
     <section id="work" aria-labelledby="work-title" data-theme="dark" className="relative scroll-mt-0">
       {/* Pinned heading behind the projects */}
-      <div className="sticky top-0 grid h-[100dvh] place-items-center overflow-hidden">
+      <div className="sticky top-0 grid h-[100dvh] place-items-center overflow-clip">
         <motion.h2
           id="work-title"
           style={parallax ? { opacity: headingOpacity } : undefined}

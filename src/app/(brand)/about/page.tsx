@@ -89,9 +89,9 @@ export default async function AboutPage() {
             <ul className="mt-16 grid gap-x-5 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
               {shown.map((m, i) => (
                 <Reveal as="li" key={m.id} delay={(i % 3) * 0.06}>
-                  <div className="relative aspect-[4/5] overflow-hidden rounded-[24px] bg-[#f2f5fa]">
+                  <div className="relative aspect-[4/5] overflow-clip rounded-[24px] bg-[#f2f5fa]">
                     {m.photo ? (
-                      <Image src={m.photo} alt={m.name} fill sizes="(min-width:1024px) 33vw, 50vw" className="object-cover grayscale transition duration-700 hover:grayscale-0" />
+                      <Image src={m.photo} alt={m.name} fill sizes="(min-width:1024px) 33vw, 50vw" className="object-cover mono" />
                     ) : (
                       <div className="absolute inset-0 grid place-items-center">
                         <span className="display-wide text-7xl text-[#050816]/12" aria-hidden="true">{initials(m.name, m.role)}</span>

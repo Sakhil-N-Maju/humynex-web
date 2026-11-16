@@ -33,14 +33,14 @@ export default async function ProjectsPage() {
           {lead && (
             <Reveal className="mt-10">
               <Link href={`/projects/${lead.slug}`} className="group block">
-                <div className="relative aspect-[4/3] overflow-hidden rounded-[28px] md:aspect-[21/9]">
+                <div className="relative aspect-[4/3] overflow-clip rounded-[28px] md:aspect-[21/9]">
                   <Image
                     src={projectCover(lead.cover, 0)}
                     alt={lead.title}
                     fill
                     priority
                     sizes="100vw"
-                    className="object-cover grayscale transition-[filter,transform] duration-700 group-hover:scale-[1.02] group-hover:grayscale-0"
+                    className="object-cover mono group-hover:scale-[1.02]"
                   />
                 </div>
                 <div className="mt-6 grid gap-4 md:grid-cols-[1fr_auto] md:items-end">
@@ -61,13 +61,13 @@ export default async function ProjectsPage() {
             {rest.map((p, i) => (
               <Reveal key={p.id} delay={(i % 2) * 0.08} className={clsx(i % 2 === 1 && "md:mt-28")}>
                 <Link href={`/projects/${p.slug}`} className="group block">
-                  <div className="relative aspect-[4/3] overflow-hidden rounded-[24px]">
+                  <div className="relative aspect-[4/3] overflow-clip rounded-[24px]">
                     <Image
                       src={projectCover(p.cover, i + 1)}
                       alt={p.title}
                       fill
                       sizes="(min-width:768px) 50vw, 100vw"
-                      className="object-cover grayscale transition-[filter,transform] duration-700 group-hover:scale-[1.03] group-hover:grayscale-0"
+                      className="object-cover mono group-hover:scale-[1.03]"
                     />
                   </div>
                   <p className="mt-5 font-mono text-[0.72rem] uppercase tracking-[0.1em] text-white/50">

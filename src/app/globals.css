@@ -241,3 +241,44 @@ html.lenis, html.lenis body { height: auto; }
   }
   .admin-light ::selection { background: #1e90ff; color: #fff; }
 }
+
+/*
+ * .mono: photo that starts black-and-white and turns colour.
+ * Mouse/trackpad: colour on hover (itself or a .group parent).
+ * Touch screens (no hover): colour fades in as the photo scrolls into view;
+ * browsers without scroll-driven animations just show it in colour.
+ */
+@layer components {
+  .mono {
+    filter: grayscale(1);
+    transition: filter 0.7s ease, transform 0.7s ease;
+  }
+  @media (hover: hover) {
+    .mono:hover,
+    .group:hover .mono {
+      filter: grayscale(0);
+    }
+  }
+  @media (hover: none) {
+    .mono {
+      filter: none;
+    }
+    @supports (animation-timeline: view()) {
+      .mono {
+        animation: mono-reveal linear both;
+        animation-timeline: view();
+        animation-range: entry 10% cover 40%;
+      }
+    }
+  }
+  @media (prefers-reduced-motion: reduce) and (hover: none) {
+    .mono {
+      animation: none;
+      filter: none;
+    }
+  }
+}
+@keyframes mono-reveal {
+  from { filter: grayscale(1); }
+  to { filter: grayscale(0); }
+}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useSyncExternalStore } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "@phosphor-icons/react";
@@ -10,6 +10,19 @@ import { CountUp } from "@/components/ui/count-up";
 type Fact = { value: number; suffix: string; label: string };
 type Client = { name: string; logo: string };
 type Badge = { label: string; detail: string };
+
+const WIDE = "(min-width: 768px)";
+function useWide() {
+  return useSyncExternalStore(
+    (cb) => {
+      const m = window.matchMedia(WIDE);
+      m.addEventListener("change", cb);
+      return () => m.removeEventListener("change", cb);
+    },
+    () => window.matchMedia(WIDE).matches,
+    () => true,
+  );
+}
 
 /** Moves at its own speed relative to the scroll, for depth. */
 function Drift({
@@ -26,7 +39,11 @@ function Drift({
   children: React.ReactNode;
 }) {
   const reduce = useReducedMotion();
-  const y = useTransform(progress, [0, 1], [speed, -speed]);
+  // on phones the items stack in one column, so big speed differences would
+  // slide them over each other; keep only a gentle drift there
+  const wide = useWide();
+  const s = wide ? speed : speed * 0.15;
+  const y = useTransform(progress, [0, 1], [s, -s]);
   return (
     <motion.div style={reduce ? undefined : { y }} className={className}>
       {children}
