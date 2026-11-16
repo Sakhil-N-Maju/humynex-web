@@ -67,6 +67,10 @@
     font-weight: 400;
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+    /* A word too long for its line (a pasted link, part number or text with
+       no spaces) breaks instead of pushing the page wider than a phone.
+       Only kicks in when a word would otherwise overflow. */
+    overflow-wrap: anywhere;
   }
   ::selection {
     background: var(--color-volt);
