@@ -1,6 +1,6 @@
 "use client";
 
-import Image from "next/image";
+import { FitImage } from "@/components/ui/fit-image";
 import Link from "next/link";
 import { useRef } from "react";
 import { motion, useReducedMotion, useScroll, useTransform, type MotionValue } from "motion/react";
@@ -18,12 +18,11 @@ function Card({ work, slot, className, ratio }: { work: Work; slot: number; clas
   return (
     <Link href={`/projects/${work.slug}`} className={clsx("group block", className)}>
       <div className="relative overflow-clip bg-white/5" style={{ aspectRatio: `${w} / ${h}` }}>
-        <Image
+        <FitImage
           src={work.cover ?? placeholder(slot)}
           alt={work.title}
-          fill
           sizes="(min-width: 768px) 30vw, 90vw"
-          className="object-cover mono group-hover:scale-[1.03]"
+          className="mono transition-transform duration-700 group-hover:scale-[1.03]"
         />
       </div>
       <p className="mt-3 font-mono text-[0.72rem] uppercase tracking-[0.06em] text-white/75 transition-colors group-hover:text-[#67D4FF]">

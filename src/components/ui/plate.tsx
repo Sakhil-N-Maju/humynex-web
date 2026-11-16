@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { FitImage } from "@/components/ui/fit-image";
 import {
   Cpu,
   Engine,
@@ -55,7 +55,7 @@ export function Plate({
   return (
     <div className={clsx("relative overflow-hidden bg-ink-2", chamfer && "chamfer", className)}>
       {src ? (
-        <Image src={src} alt={alt} fill sizes={sizes} priority={priority} className="object-cover" />
+        <FitImage src={src} alt={alt} sizes={sizes} priority={priority} />
       ) : (
         <div className="absolute inset-0" role="img" aria-label={alt}>
           <div className="absolute inset-0 bg-[radial-gradient(120%_90%_at_70%_20%,rgb(30_144_255/0.18),transparent_60%)]" />

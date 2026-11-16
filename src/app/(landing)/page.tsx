@@ -102,7 +102,6 @@ export default async function LandingPage() {
         <Stage
           headline={s.landing.headline}
           sub={s.landing.sub}
-          phone={phone}
         />
 
         {/* Every service, stacking as you scroll. On desktop it overlaps the

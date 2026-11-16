@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import Image from "next/image";
+import { FitImage } from "@/components/ui/fit-image";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ArrowRight } from "@phosphor-icons/react/dist/ssr";
 import { db, parseJSON } from "@/lib/db";
@@ -45,8 +45,8 @@ export default async function ProjectPage({ params }: Props) {
             <h1 className="display-wide mt-5 max-w-[16ch] text-[2.8rem] md:text-[clamp(3.4rem,6vw,5.6rem)]">{p.title}</h1>
             <p className="mt-6 max-w-[56ch] text-lg leading-relaxed text-[#050816]/65 md:text-xl">{p.summary}</p>
           </div>
-          <div className="relative mt-14 aspect-[4/3] overflow-hidden rounded-[28px] md:aspect-[21/9]">
-            <Image src={projectCover(p.cover, Math.max(idx, 0))} alt={p.title} fill priority sizes="100vw" className="object-cover" />
+          <div className="relative mt-14 aspect-[4/3] overflow-clip rounded-[28px] bg-[#050816] md:aspect-[16/9]">
+            <FitImage src={projectCover(p.cover, Math.max(idx, 0))} alt={p.title} priority sizes="100vw" />
           </div>
         </div>
       </header>

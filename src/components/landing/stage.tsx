@@ -26,11 +26,9 @@ function ServicesIntro() {
 export function Stage({
   headline,
   sub,
-  phone,
 }: {
   headline: string;
   sub: string;
-  phone: string;
 }) {
   const track = useRef<HTMLDivElement>(null);
   const reduce = useReducedMotion();
@@ -53,8 +51,6 @@ export function Stage({
   // shows only the dark panel; it fades in as the panel grows
   const introOpacity = useTransform(e, [0.3, 0.7], [0, 1]);
 
-  const phoneHref = `tel:${phone.replace(/\s/g, "")}`;
-
   return (
     <div ref={track} id="top" className="relative md:h-[230vh]">
       <div data-theme="light" className="relative bg-white md:sticky md:top-0 md:h-[100dvh] md:overflow-hidden">
@@ -74,12 +70,6 @@ export function Stage({
               className="inline-flex h-12 items-center rounded-full bg-[#1E90FF] px-6 font-semibold text-white transition-[transform,background-color] hover:bg-[#1A7FE6] active:scale-[0.98]"
             >
               Request a quote
-            </a>
-            <a
-              href={phoneHref}
-              className="inline-flex h-12 items-center rounded-full border border-[#050816]/25 px-6 font-medium text-[#050816] transition-colors hover:border-[#1E90FF] hover:text-[#1E90FF]"
-            >
-              Call {phone}
             </a>
           </div>
         </motion.div>
