@@ -3,6 +3,10 @@ import { Inter, JetBrains_Mono } from "next/font/google";
 import { Toaster } from "@/components/ui/toaster";
 import "./globals.css";
 
+// Every page reads the live database (prices, stock, admin edits) or the session,
+// so render on request. This also keeps the build from needing the database.
+export const dynamic = "force-dynamic";
+
 // Inter with the optical-size axis; opsz 32 is the "Inter Display" cut.
 const inter = Inter({
   subsets: ["latin"],

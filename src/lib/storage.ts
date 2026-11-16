@@ -31,7 +31,7 @@ const LOCAL: Record<Bucket, string> = {
 /** Store a file. Returns the key to save in the database. */
 export async function putObject(bucket: Bucket, key: string, body: ArrayBuffer | Buffer, contentType: string) {
   if (!cloudStorage()) {
-    const file = path.join(LOCAL[bucket], key);
+    const file = path.join(/*turbopackIgnore: true*/ LOCAL[bucket], key);
     await mkdir(path.dirname(file), { recursive: true });
     await writeFile(file, Buffer.from(body as ArrayBuffer));
     return key;
@@ -54,7 +54,7 @@ export function mediaUrl(key: string) {
 export async function getObject(bucket: Bucket, key: string): Promise<Buffer | null> {
   if (!cloudStorage()) {
     try {
-      return await readFile(path.join(LOCAL[bucket], path.normalize(key).replace(/^(\.\.[/\\])+/, "")));
+      return await readFile(/*turbopackIgnore: true*/ path.join(/*turbopackIgnore: true*/ LOCAL[bucket], path.normalize(key).replace(/^(\.\.[/\\])+/, "")));
     } catch {
       return null;
     }

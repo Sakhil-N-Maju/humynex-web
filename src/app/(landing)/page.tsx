@@ -11,9 +11,6 @@ import { WorksSection } from "@/components/landing/works-section";
 import { ProcessTimeline } from "@/components/landing/process-timeline";
 import { Reveal } from "@/components/fx/reveal";
 
-// Static and fast; admin saves revalidate it immediately, and this is a safety net.
-export const revalidate = 300;
-
 export const metadata: Metadata = {
   title: { absolute: "Humynex Robotics: robotics parts, robot rentals and 3D printing in Kerala" },
   alternates: { canonical: "/" },

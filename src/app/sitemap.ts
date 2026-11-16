@@ -3,8 +3,8 @@ import { db } from "@/lib/db";
 
 const base = process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.humynexrobotics.in";
 
-// rebuilt at most hourly so new products and projects appear
-export const revalidate = 3600;
+// built on request so new products and projects appear (and the build needs no database)
+export const dynamic = "force-dynamic";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const [products, rentals, projects] = await Promise.all([
