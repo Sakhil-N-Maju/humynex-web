@@ -5,7 +5,7 @@ export const LEGAL = {
   legalName: "HUMYNEX ROBOTICS PRIVATE LIMITED",
   gstin: "32AAICH6196H1ZD",
   // Consumer Protection (E-Commerce) Rules 2020 and the DPDP Act 2023 need a named contact
-  grievanceOfficer: "Pranav S Pillai",
+  grievanceOfficer: "Sreedeep K Santhosh",
   jurisdiction: "Ernakulam, Kerala",
   lastUpdated: "17 November 2026",
 };
