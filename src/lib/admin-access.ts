@@ -16,7 +16,7 @@ export const DEMO_READONLY = process.env.NEXT_PUBLIC_DEMO_MODE === "1";
 export const ADMIN_PREVIEW = (DEMO_READONLY || process.env.NODE_ENV !== "production") && !googleConfigured();
 
 /** Always admins, whatever the admin list says, so the business can never lock itself out. */
-export const OWNER_ADMINS = ["goldot.ai.solutions@gmail.com", "info@humynexrobotics.in"];
+export const OWNER_ADMINS = ["goldot.ai.solutions@gmail.com", "info@humynexrobotics.in", "humynexrobotics@gmail.com"];
 
 export function normaliseEmail(e: string) {
   return e.trim().toLowerCase();
